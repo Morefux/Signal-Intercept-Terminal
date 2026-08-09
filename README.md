@@ -4,7 +4,7 @@
 A cyberpunk‑themed terminal puzzle game. Decode fragmented signals across multiple cipher layers.
 
 ## How to Play
-1. Open `index.html` in your browser**or visit https://candid‑unicorn‑83844a.netlify.app to start**
+1. Open `index.html` in your browser**or visit https://signalinterceptterminal.netlify.app/ to start**
 2. Press any key to start the terminal
 3. Decode each signal and submit your answer
 4. Uncover the hidden source behind the transmission
@@ -34,7 +34,7 @@ Made with ♡
 一款赛博朋克风格终端解谜游戏，破译层层破碎的加密信号。
 
 ## 游玩方式
-1. 使用浏览器打开 `index.html`**或者访问 https://candid‑unicorn‑83844a.netlify.app 直接开始游戏**
+1. 使用浏览器打开 `index.html`**或者访问 https://signalinterceptterminal.netlify.app/ 直接开始游戏**
 2. 按下任意键启动终端
 3. 破译每一组信号并提交答案
 4. 揭开信号背后隐藏的真相
