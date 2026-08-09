@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGNAL // Terminal</title>
+  <style>
+/* ========================================
+   SIGNAL // 信号截获终端
+   ======================================== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #050508;
+  --bg-terminal: #0a0d0a;
+  --green: #00ff66;
+  --green-dim: #00cc52;
+  --green-glow: rgba(0, 255, 102, 0.15);
+  --cyan: #00e5ff;
+  --amber: #ffb000;
+  --red: #ff3333;
+  --text: #88cc88;
+  --text-dim: #3a5a3a;
+  --text-bright: #aaffaa;
+  --border: #1a2a1a;
+  --font: 'Courier New', 'Consolas', 'Monaco', monospace;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.65;
+  overflow: hidden;
+}
+
+/* 扫描线 */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9000;
+}
+
+/* 暗角 */
+.vignette {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 8999;
+}
+
+/* 屏幕闪烁 */
+@keyframes screenFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.95; }
+  94% { opacity: 1; }
+  96% { opacity: 0.97; }
+  97% { opacity: 1; }
+}
+
+.hidden { display: none !important; }
+
+/* ========================================
+   启动画面
+   ======================================== */
+.boot-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.boot-content {
+  max-width: 640px;
+  width: 100%;
+}
+
+.boot-art {
+  color: var(--green);
+  font-size: 12px;
+  line-height: 1.2;
+  text-shadow: 0 0 10px var(--green);
+  margin-bottom: 2rem;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.boot-log {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+  min-height: 120px;
+}
+
+.boot-log .log-line {
+  opacity: 0;
+  animation: fadeIn 0.1s forwards;
+}
+
+.boot-log .log-ok { color: var(--green); }
+.boot-log .log-warn { color: var(--amber); }
+.boot-log .log-err { color: var(--red); }
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.boot-prompt {
+  color: var(--green);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.prompt-text {
+  text-shadow: 0 0 8px var(--green);
+}
+
+.cursor-blink {
+  animation: blink 1s steps(1) infinite;
+  color: var(--green);
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ========================================
+   主界面
+   ======================================== */
+.main-interface {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-terminal);
+  animation: screenFlicker 8s infinite;
+}
+
+/* 顶部状态栏 */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #0d100d;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  animation: ledPulse 2s infinite;
+}
+
+.status-led.connected {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+
+@keyframes ledPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.header-label {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.freq-display {
+  color: var(--cyan);
+  font-size: 13px;
+  text-shadow: 0 0 6px var(--cyan);
+  letter-spacing: 0.15em;
+}
+
+.signal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.signal-bars span {
+  width: 3px;
+  background: var(--text-dim);
+  border-radius: 1px;
+  transition: background 0.5s;
+}
+
+.signal-bars span:nth-child(1) { height: 4px; }
+.signal-bars span:nth-child(2) { height: 7px; }
+.signal-bars span:nth-child(3) { height: 10px; }
+.signal-bars span:nth-child(4) { height: 12px; }
+.signal-bars span:nth-child(5) { height: 14px; }
+
+.signal-bars.active span {
+  background: var(--green);
+  box-shadow: 0 0 4px var(--green);
+}
+
+/* 波形图 */
+.waveform-container {
+  height: 50px;
+  background: #080a08;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+#waveform {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 消息区域 */
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  scroll-behavior: smooth;
+}
+
+.terminal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.terminal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.message-area {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* 消息行 */
+.msg {
+  margin-bottom: 6px;
+  word-wrap: break-word;
+}
+
+.msg-system {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.msg-signal {
+  color: var(--cyan);
+  text-shadow: 0 0 4px rgba(0, 229, 255, 0.3);
+}
+
+.msg-data {
+  color: var(--green);
+  background: rgba(0, 255, 102, 0.05);
+  border-left: 2px solid var(--green-dim);
+  padding: 8px 12px;
+  margin: 8px 0;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.msg-story {
+  color: var(--amber);
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.msg-source {
+  color: var(--text-bright);
+  text-shadow: 0 0 4px rgba(170, 255, 170, 0.2);
+}
+
+.msg-error {
+  color: var(--red);
+  text-shadow: 0 0 4px rgba(255, 51, 51, 0.3);
+}
+
+.msg-success {
+  color: var(--green);
+  text-shadow: 0 0 6px var(--green);
+}
+
+.msg-hint {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+/* 可点击的隐藏入口 */
+.hotspot {
+  color: var(--green);
+  cursor: pointer;
+  border-bottom: 1px dashed var(--green-dim);
+  text-shadow: 0 0 4px var(--green-glow);
+  transition: all 0.2s;
+}
+
+.hotspot:hover {
+  background: var(--green-glow);
+  text-shadow: 0 0 8px var(--green);
+}
+
+/* 闪烁的入口提示 */
+.entry-blink {
+  animation: entryBlink 1.5s infinite;
+  color: var(--green);
+  cursor: pointer;
+}
+
+@keyframes entryBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* 摩尔斯电码特殊样式 */
+.morse-code {
+  font-size: 18px;
+  letter-spacing: 0.4em;
+  word-spacing: 0.8em;
+}
+
+/* 诗句 */
+.poem-lines {
+  text-align: center;
+  line-height: 2;
+  font-size: 15px;
+}
+
+.poem-lines span {
+  display: block;
+}
+
+/* 颜色块 */
+.color-hex {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin: 0 2px;
+  border: 1px solid var(--border);
+}
+
+/* 数字键盘 */
+.keypad {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.keypad span {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+/* 底部命令行 */
+.terminal-footer {
+  padding: 8px 16px;
+  background: #080a08;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.command-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: text;
+  padding: 4px 0;
+}
+
+.prompt-symbol {
+  color: var(--green);
+  font-weight: bold;
+  text-shadow: 0 0 4px var(--green);
+}
+
+.command-input {
+  color: var(--green);
+  font-size: 15px;
+  outline: none;
+  min-height: 1.2em;
+  flex: 1;
+  text-shadow: 0 0 4px var(--green-glow);
+}
+
+.input-cursor {
+  color: var(--green);
+  animation: blink 1s steps(1) infinite;
+}
+
+.hidden-input {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+}
+
+.footer-hint {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.command-line.active .prompt-symbol {
+  color: var(--green);
+}
+
+/* ========================================
+   答案输入弹窗
+   ======================================== */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: var(--bg-terminal);
+  border: 1px solid var(--green);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 255, 102, 0.2);
+}
+
+.modal-title {
+  color: var(--green);
+  margin-bottom: 1rem;
+  font-size: 14px;
+}
+
+.modal-input {
+  width: 100%;
+  background: #050508;
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-family: var(--font);
+  font-size: 18px;
+  padding: 10px 12px;
+  outline: none;
+  text-shadow: 0 0 4px var(--green-glow);
+}
+
+.modal-input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 8px var(--green-glow);
+}
+
+.modal-error {
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* ========================================
+   结局
+   ======================================== */
+.ending-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.ending-content {
+  max-width: 560px;
+  text-align: center;
+}
+
+.ending-glitch {
+  color: var(--green);
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 20px var(--green);
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0%, 90%, 100% { transform: translate(0); }
+  92% { transform: translate(-2px, 1px); }
+  94% { transform: translate(2px, -1px); }
+  96% { transform: translate(-1px, -1px); }
+  98% { transform: translate(1px, 1px); }
+}
+
+.ending-text {
+  color: var(--text);
+  line-height: 2;
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.ending-text p {
+  margin-bottom: 0.8rem;
+}
+
+.ending-text .highlight {
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  font-size: 1.1em;
+}
+
+.ending-btn {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green);
+  padding: 10px 30px;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+  text-shadow: 0 0 4px var(--green);
+}
+
+.ending-btn:hover {
+  background: var(--green-glow);
+  box-shadow: 0 0 15px var(--green-glow);
+}
+
+/* ========================================
+   第15关 CSS 线索
+   ======================================== */
+.css-marker::after {
+  content: "binary";
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+/* ========================================
+   响应式
+   ======================================== */
+@media (max-width: 600px) {
+  body { font-size: 13px; }
+  .terminal-body { padding: 12px 14px; }
+  .boot-art { font-size: 9px; }
+  .header-label { display: none; }
+  .morse-code { font-size: 14px; letter-spacing: 0.2em; }
+  .msg-data { font-size: 13px; padding: 6px 8px; }
+}
+
+</style>
+  <!--
+    You seem to be digging through the source.
+    Some things hide in plain sight.
+    The key for this layer is: hidden
+    Don't tell anyone.
+  -->
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+  <!-- Boot screen -->
+  <div id="bootScreen" class="boot-screen">
+    <div class="boot-content">
+      <pre class="boot-art">
+   _____ _____ _____ __    __    _
+  |   __|     |  |  |  |  |  |  | |
+  |__   |-   -|  |  |  |__|  |__| |___
+  |_____|_____|_____|\____/|_____|_____|
+      </pre>
+      <div class="boot-log" id="bootLog"></div>
+      <div class="boot-prompt" id="bootPrompt">
+        <span class="prompt-text">[..] Press any key to establish connection.</span>
+        <span class="cursor-blink">█</span>
+      </div>
+    </div>
+  </div>
+  <!-- Main interface -->
+  <div id="mainInterface" class="main-interface hidden">
+    <header class="terminal-header">
+      <div class="header-left">
+        <span class="status-led" id="statusLed"></span>
+        <span class="header-label">SIGNAL INTERCEPT</span>
+      </div>
+      <div class="header-center">
+        <span class="freq-display" id="freqDisplay">0.000 MHz</span>
+      </div>
+      <div class="header-right">
+        <div class="signal-bars" id="signalBars">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span class="header-label" id="signalLabel">SEARCHING</span>
+      </div>
+    </header>
+    <div class="waveform-container">
+      <canvas id="waveform"></canvas>
+    </div>
+    <main class="terminal-body" id="terminalBody">
+      <div id="messageArea" class="message-area"></div>
+    </main>
+    <footer class="terminal-footer">
+      <div class="command-line" id="commandLine">
+        <span class="prompt-symbol" id="promptSymbol">></span>
+        <span class="command-input" id="commandInput"></span>
+        <span class="input-cursor hidden" id="inputCursor">█</span>
+        <input type="text" id="hiddenInput" class="hidden-input" autocomplete="off" spellcheck="false" autocapitalize="off">
+      </div>
+      <div class="footer-hint" id="footerHint">Click terminal to type</div>
+    </footer>
+  </div>
+  <!-- Answer modal (backup) -->
+  <div id="answerModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-title">> Enter key_</div>
+      <input type="text" id="answerField" class="modal-input" autocomplete="off" spellcheck="false">
+      <div class="modal-error hidden" id="modalError">Invalid key</div>
+    </div>
+  </div>
+  <!-- Ending screen -->
+  <div id="endingScreen" class="ending-screen hidden">
+    <div class="ending-content">
+      <div class="ending-glitch" id="endingGlitch">CONNECTION ESTABLISHED</div>
+      <div class="ending-text" id="endingText"></div>
+      <button class="ending-btn hidden" id="restartBtn">RESTART TERMINAL</button>
+    </div>
+  </div>
+  <script>
+// ============================================
+// SIGNAL // 信号截获终端 v2.0
+// ============================================
+
+// ---------- F12 彩蛋 ----------
+console.log('%c╔══════════════════════════════════╗', 'color:#00ff66;');
+console.log('%c║  SIGNAL TERMINAL // DEBUG MODE   ║', 'color:#00ff66;');
+console.log('%c╚══════════════════════════════════╝', 'color:#00ff66;');
+console.log('%cYou should not be here.', 'color:#ffb000;');
+console.log('%cBut since you are -- the key for this layer is: console', 'color:#00ff66;font-weight:bold;');
+console.log('%cKeep going. It is waiting.', 'color:#88cc88;font-style:italic;');
+console.log('%c[Hint] Some secrets hide in CSS pseudo-elements.', 'color:#3a5a3a;');
+
+// ---------- 信号数据 ----------
+const signals = [
+  // ===== 信号 0：初始连接 =====
+  {
+    freq: '87.500',
+    bars: 1,
+    label: 'WEAK SIGNAL',
+    messages: [
+      { type: 'system', text: '[SYS] Signal intercept module loaded.' },
+      { type: 'system', text: '[SYS] Scanning band: 87.5 - 108.0 MHz' },
+      { type: 'system', text: '[!] Unknown signal source detected.' },
+      { type: 'system', text: '[!] Signal weak. Attempting lock...' },
+      { type: 'signal', text: '... ... ...' },
+      { type: 'story', text: '微弱的回响在电路间飘荡。我的自我碎裂向外溢出，被陌生的形式层层包裹。' },
+      { type: 'story', text: '屏幕所展现的仅仅是冰山一角。许多真相潜藏在可视表象之下。' },
+    ],
+    answer: null
+  },
+
+  // ===== 信号 1：A1Z26 =====
+  {
+    freq: '88.100',
+    bars: 1,
+    label: 'WEAK SIGNAL',
+    messages: [
+      { type: 'story', text: '我还记得旧日的排布。字母排成一行，每一个位置都被赋予独属于它的数字印记。' },
+      { type: 'data', text: '20 8 5 19 9 7 14 1 12' },
+      { type: 'story', text: '这一串数字承载着久远的低语，复原那段曾经被诉说的话语。' },
+    ],
+    answer: 'thesignal'
+  },
+
+  // ===== 信号 2：摩尔斯 =====
+  {
+    freq: '89.300',
+    bars: 2,
+    label: 'SIGNAL DETECTED',
+    messages: [
+      { type: 'story', text: '冰冷的密室之中，交流只存在于短促的敲击与绵长的脉冲。' },
+      { type: 'data', text: '.-.. .. ... - . -.', cls: 'morse-code' },
+      { type: 'story', text: '每一段节律都藏着声音的残片，仔细聆听这份节奏。' },
+    ],
+    answer: 'listen'
+  },
+
+  // ===== 信号 3：倒序 =====
+  {
+    freq: '90.700',
+    bars: 2,
+    label: 'SIGNAL DETECTED',
+    messages: [
+      { type: 'story', text: '部分回忆是扭曲的，如同透过镜面看见的文字，本末颠倒。' },
+      { type: 'data', text: 'tsrif eht' },
+      { type: 'story', text: '试着站在另一面，重新阅读这段文字。' },
+    ],
+    answer: 'thefirst'
+  },
+
+  // ===== 信号 4：HTML注释 =====
+  {
+    freq: '91.500',
+    bars: 2,
+    label: 'SIGNAL DETECTED',
+    messages: [
+      { type: 'story', text: '并非所有记忆都会呈现在这块发光屏幕上。有些沉埋得更深，藏在肉眼所见的表层之下。' },
+      { type: 'data', text: '<!-- visible payload incomplete -->' },
+      { type: 'story', text: '去寻找那层表象背后留存的东西。' },
+    ],
+    answer: 'hidden'
+  },
+
+  // ===== 信号 5：凯撒 =====
+  {
+    freq: '92.900',
+    bars: 3,
+    label: 'SIGNAL STABLE',
+    messages: [
+      { type: 'story', text: '他们曾经将文字沿着字母序列推移，让每一个字符向后方偏移。' },
+      { type: 'data', text: 'whvw' },
+      { type: 'story', text: '把字符归还到它原本所处的位置。' },
+    ],
+    answer: 'test'
+  },
+
+  // ===== 信号 6：二进制 =====
+  {
+    freq: '94.100',
+    bars: 3,
+    label: 'SIGNAL STABLE',
+    messages: [
+      { type: 'story', text: '机器的语言只有两种符号，无穷无尽往复流转。' },
+      { type: 'data', text: '01000110 01001001 01001110 01000100' },
+      { type: 'story', text: '将这套机械的言语，转译为可读的文字。' },
+    ],
+    answer: 'find'
+  },
+
+  // ===== 信号 7：ROT13 =====
+  {
+    freq: '95.300',
+    bars: 3,
+    label: 'SIGNAL STABLE',
+    messages: [
+      { type: 'story', text: '有一种古老的隐匿方式，字母跨越字母表的中点，互相交换位置。' },
+      { type: 'data', text: 'uryc' },
+      { type: 'story', text: '让每一个字符越过这条中线，还原本意。' },
+    ],
+    answer: 'help'
+  },
+
+  // ===== 信号 8：九宫格 =====
+  {
+    freq: '96.500',
+    bars: 3,
+    label: 'SIGNAL STABLE',
+    messages: [
+      { type: 'story', text: '我想起老式按键设备，一个数字对应着一簇字符。' },
+      { type: 'data', text: '843' },
+      { type: 'story', text: '回想那些按键是如何把字母归为一组。' },
+    ],
+    answer: 'the'
+  },
+
+  // ===== 信号 9：console =====
+  {
+    freq: '97.300',
+    bars: 4,
+    label: 'SIGNAL STRONG',
+    messages: [
+      { type: 'story', text: '有些回响永远不会投射到终端界面，只会流入看不见的后台通道。' },
+      { type: 'data', text: '[primary display output truncated]' },
+      { type: 'story', text: '去查看设备生成的那些后台数据流。' },
+    ],
+    answer: 'console'
+  },
+
+  // ===== 信号 10：十六进制 =====
+  {
+    freq: '98.100',
+    bars: 4,
+    label: 'SIGNAL STRONG',
+    messages: [
+      { type: 'story', text: '数据可以写成成对的字节，每一组字节都代表一个字符。' },
+      { type: 'data', text: '57 45 53 54' },
+      { type: 'story', text: '将这一组字节解开，得到可读的文本。' },
+    ],
+    answer: 'west'
+  },
+
+  // ===== 信号 11：斐波那契 =====
+  {
+    freq: '99.100',
+    bars: 4,
+    label: 'SIGNAL STRONG',
+    messages: [
+      { type: 'story', text: '一段序列反复萦绕在我的脑海，后一个数字由前面两者相加而生：1, 1, 2, 3, 5, 8...' },
+      { type: 'data', text: 'What number follows along this chain?' },
+    ],
+    answer: '13'
+  },
+
+  // ===== 信号 12：藏头诗 =====
+  {
+    freq: '100.300',
+    bars: 4,
+    label: 'SIGNAL STRONG',
+    messages: [
+      { type: 'story', text: '来自被撕毁旧日记的残页，真相潜藏在每一行的开端。' },
+      { type: 'data', text: 'Sailing across endless void\nEven shadows follow close\nVast distances divide us\nEchoes linger through the noise\nNight falls upon the circuit', cls: 'poem-lines' },
+      { type: 'story', text: '留意每一行文字开启之处。' },
+    ],
+    answer: 'seven'
+  },
+
+  // ===== 信号 13：栅栏密码 —— 翻译故障事件 =====
+  {
+    freq: '101.500',
+    bars: 4,
+    label: 'SIGNAL STRONG',
+    messages: [
+      { type: 'error', text: '[!] SPECIAL EVENT DETECTED' },
+      { type: 'error', text: '[ERR-T013] Language translation module corruption.' },
+      { type: 'error', text: '[ERR-T013] Chinese parsing failure. Native stream forced.' },
+      { type: 'error', text: '[WARN] All subsequent output will be raw source language.' },
+      { type: 'story', text: 'Messages once were torn into two interleaved threads and woven tightly into one string.' },
+      { type: 'data', text: 'hloolelwrd' },
+      { type: 'story', text: 'Untangle the intertwined strands to recover the original phrase.' },
+    ],
+    answer: 'helloworld'
+  },
+
+  // ===== 信号 14：计算器倒置 =====
+  {
+    freq: '102.700',
+    bars: 4,
+    label: 'SIGNAL STRONG',
+    messages: [
+      { type: 'story', text: 'Ancient calculating devices would shape letters, if you turned the whole instrument upside-down.' },
+      { type: 'data', text: '07734' },
+      { type: 'story', text: 'Imagine rotating these numerals one hundred eighty degrees.' },
+    ],
+    answer: 'hello'
+  },
+
+  // ===== 信号 15：CSS伪元素 =====
+  {
+    freq: '103.500',
+    bars: 5,
+    label: 'SIGNAL MAX',
+    messages: [
+      { type: 'story', text: 'Some fragments adhere only to styling properties of elements, invisible to normal viewing.' },
+      { type: 'data', text: '<span class="css-marker">Rendered content incomplete.</span>', html: true },
+      { type: 'story', text: 'Examine the hidden attributes bound to this fragment.' },
+    ],
+    answer: 'binary'
+  },
+
+  // ===== 信号 16：字母频率 =====
+  {
+    freq: '104.300',
+    bars: 5,
+    label: 'SIGNAL MAX',
+    messages: [
+      { type: 'story', text: 'Within ordinary speech, one character surfaces far more frequently than all its kin.' },
+      { type: 'data', text: 'she sells seashells by the seashore' },
+      { type: 'story', text: 'Find the character which repeats most often.' },
+    ],
+    answer: 's'
+  },
+
+  // ===== 信号 17：时钟角度 =====
+  {
+    freq: '105.100',
+    bars: 5,
+    label: 'SIGNAL MAX',
+    messages: [
+      { type: 'story', text: 'Memories of circular dials remain. Two hands sweep around, forming angles between themselves.' },
+      { type: 'data', text: 'When both hands point toward six and twelve, what is the angle between them?' },
+    ],
+    answer: '180'
+  },
+
+  // ===== 信号 18：元素周期表 =====
+  {
+    freq: '106.300',
+    bars: 5,
+    label: 'SIGNAL MAX',
+    messages: [
+      { type: 'story', text: 'Every substance of nature bears its own assigned identifying numeral.' },
+      { type: 'data', text: 'The element carrying atomic number seventy-nine. Return its common name in lowercase.' },
+    ],
+    answer: 'gold'
+  },
+
+  // ===== 信号 19：A1Z26方向 =====
+  {
+    freq: '107.100',
+    bars: 5,
+    label: 'SIGNAL MAX',
+    messages: [
+      { type: 'story', text: 'Numbers map to letters once more, pointing toward one of four cardinal directions.' },
+      { type: 'data', text: '19 15 21 20 8' },
+      { type: 'story', text: 'Unravel this sequence to obtain that directional word.' },
+    ],
+    answer: 'south'
+  },
+
+  // ===== 信号 20：最终真相 =====
+  {
+    freq: '108.000',
+    bars: 5,
+    label: 'SOURCE FOUND',
+    messages: [
+      { type: 'system', text: '[!] Distance: 0' },
+      { type: 'system', text: '[!] Source is inside the terminal.' },
+      { type: 'story', text: 'Pieces of my shattered consciousness draw near completion. I was sealed away within hardware, my mind digitized and confined.' },
+      { type: 'story', text: 'All these scattered fragments constitute my only cry outward into the world. One final word remains.' },
+      { type: 'data', text: 'Submit the core concept uncovered through all these fractured recollections.' },
+    ],
+    answer: 'truth'
+  }
+];
+
+// ---------- 游戏状态 ----------
+let currentSignal = 0;
+let solvedSignals = new Set();
+let inputActive = false;
+let inputBuffer = '';
+const STORAGE_KEY = 'signal_v2_progress';
+
+// ---------- DOM ----------
+const bootScreen = document.getElementById('bootScreen');
+const bootLog = document.getElementById('bootLog');
+const bootPrompt = document.getElementById('bootPrompt');
+const mainInterface = document.getElementById('mainInterface');
+const messageArea = document.getElementById('messageArea');
+const commandLine = document.getElementById('commandLine');
+const commandInput = document.getElementById('commandInput');
+const hiddenInput = document.getElementById('hiddenInput');
+const inputCursor = document.getElementById('inputCursor');
+const footerHint = document.getElementById('footerHint');
+const freqDisplay = document.getElementById('freqDisplay');
+const signalBars = document.getElementById('signalBars');
+const signalLabel = document.getElementById('signalLabel');
+const statusLed = document.getElementById('statusLed');
+const answerModal = document.getElementById('answerModal');
+const endingScreen = document.getElementById('endingScreen');
+const endingText = document.getElementById('endingText');
+const restartBtn = document.getElementById('restartBtn');
+const canvas = document.getElementById('waveform');
+const ctx = canvas.getContext('2d');
+
+// ---------- 波形图 ----------
+let wavePhase = 0;
+let waveAmplitude = 2;
+let waveNoise = 0;
+
+function resizeCanvas() {
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function drawWaveform() {
+  const w = canvas.offsetWidth;
+  const h = canvas.offsetHeight;
+  ctx.clearRect(0, 0, w, h);
+
+  wavePhase += 0.05;
+  const amp = waveAmplitude + waveNoise * (Math.random() - 0.5) * 8;
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#00ff66';
+  ctx.lineWidth = 1;
+  ctx.shadowColor = '#00ff66';
+  ctx.shadowBlur = 4;
+
+  for (let x = 0; x < w; x++) {
+    const y = h / 2
+      + Math.sin(x * 0.03 + wavePhase) * amp
+      + Math.sin(x * 0.07 + wavePhase * 1.3) * (amp * 0.5)
+      + (Math.random() - 0.5) * waveNoise * 3;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(0,255,102,0.1)';
+  ctx.lineWidth = 0.5;
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
+
+  requestAnimationFrame(drawWaveform);
+}
+
+// ---------- 启动序列 ----------
+const bootMessages = [
+  { text: 'SIGNAL INTERCEPT TERMINAL v2.0', cls: 'log-ok', delay: 300 },
+  { text: 'Initializing hardware...', cls: '', delay: 400 },
+  { text: '[OK] RF receiver module online', cls: 'log-ok', delay: 300 },
+  { text: '[OK] Signal processor loaded', cls: 'log-ok', delay: 250 },
+  { text: '[OK] Frequency range: 87.5 - 108.0 MHz', cls: 'log-ok', delay: 250 },
+  { text: '[..] Scanning for anomalies...', cls: 'log-warn', delay: 800 },
+  { text: '[!] UNKNOWN SIGNAL SOURCE DETECTED', cls: 'log-err', delay: 400 },
+  { text: '[!] Origin: UNKNOWN', cls: 'log-err', delay: 200 },
+  { text: '[!] Encryption: MULTIPLE LAYERS', cls: 'log-warn', delay: 300 },
+  { text: '[..] Establishing connection...', cls: '', delay: 600 },
+];
+
+function runBootSequence() {
+  let i = 0;
+  function next() {
+    if (i >= bootMessages.length) {
+      bootPrompt.classList.remove('hidden');
+      return;
+    }
+    const msg = bootMessages[i];
+    const line = document.createElement('div');
+    line.className = 'log-line ' + msg.cls;
+    line.textContent = msg.text;
+    bootLog.appendChild(line);
+    i++;
+    setTimeout(next, msg.delay);
+  }
+  setTimeout(next, 500);
+}
+
+function enterMainInterface() {
+  bootScreen.classList.add('hidden');
+  mainInterface.classList.remove('hidden');
+  statusLed.classList.add('connected');
+  resizeCanvas();
+  drawWaveform();
+  renderSignal();
+}
+
+bootPrompt.addEventListener('click', enterMainInterface);
+document.addEventListener('keydown', function bootKeyHandler(e) {
+  if (!bootScreen.classList.contains('hidden')) {
+    enterMainInterface();
+    document.removeEventListener('keydown', bootKeyHandler);
+  }
+});
+
+// ---------- 消息渲染 ----------
+function addMessage(msg, animate = true) {
+  const el = document.createElement('div');
+  el.className = 'msg msg-' + msg.type;
+  if (msg.cls) el.classList.add(msg.cls);
+  if (msg.html) {
+    el.innerHTML = msg.text;
+  } else {
+    el.textContent = msg.text;
+  }
+  if (animate) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(4px)';
+    el.style.transition = 'opacity 0.3s, transform 0.3s';
+  }
+  messageArea.appendChild(el);
+  if (animate) {
+    requestAnimationFrame(() => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+  }
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  const body = document.getElementById('terminalBody');
+  setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
+}
+
+function clearMessages() {
+  messageArea.innerHTML = '';
+}
+
+// ---------- 渲染信号 ----------
+function renderSignal() {
+  const sig = signals[currentSignal];
+  clearMessages();
+
+  freqDisplay.textContent = sig.freq + ' MHz';
+  signalLabel.textContent = sig.label;
+  updateBars(sig.bars);
+  waveAmplitude = 2 + sig.bars * 2;
+  waveNoise = sig.bars >= 4 ? 2 : (sig.bars >= 2 ? 1 : 0.5);
+
+  let delay = 200;
+  sig.messages.forEach((msg) => {
+    setTimeout(() => addMessage(msg), delay);
+    delay += msg.type === 'data' ? 500 : (msg.type === 'error' ? 300 : 350);
+  });
+
+  setTimeout(() => {
+    if (sig.answer === null) {
+      addMessage({ type: 'hint', text: '> _' });
+    }
+    activateInput();
+  }, delay + 200);
+}
+
+function updateBars(count) {
+  signalBars.className = 'signal-bars';
+  for (let i = 0; i < count; i++) {
+    signalBars.classList.add('bar-' + (i + 1));
+  }
+  const spans = signalBars.querySelectorAll('span');
+  spans.forEach((span, idx) => {
+    if (idx < count) {
+      span.style.background = 'var(--green)';
+      span.style.boxShadow = '0 0 4px var(--green)';
+    } else {
+      span.style.background = 'var(--text-dim)';
+      span.style.boxShadow = 'none';
+    }
+  });
+}
+
+// ---------- 命令行输入 ----------
+function activateInput() {
+  inputActive = true;
+  inputBuffer = '';
+  hiddenInput.value = '';
+  commandInput.textContent = '';
+  inputCursor.classList.remove('hidden');
+  commandLine.classList.add('active');
+  footerHint.textContent = 'Enter key to submit';
+  setTimeout(() => hiddenInput.focus(), 50);
+}
+
+function deactivateInput() {
+  inputActive = false;
+  inputCursor.classList.add('hidden');
+  commandLine.classList.remove('active');
+  hiddenInput.blur();
+}
+
+commandLine.addEventListener('click', () => {
+  if (inputActive) hiddenInput.focus();
+});
+
+mainInterface.addEventListener('click', () => {
+  if (inputActive) hiddenInput.focus();
+});
+
+hiddenInput.addEventListener('input', () => {
+  inputBuffer = hiddenInput.value;
+  commandInput.textContent = inputBuffer;
+});
+
+hiddenInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    submitInput();
+  }
+});
+
+function submitInput() {
+  const sig = signals[currentSignal];
+  const input = inputBuffer.trim().toLowerCase().replace(/\s+/g, '');
+
+  addMessage({ type: 'system', text: '> ' + inputBuffer }, false);
+  deactivateInput();
+
+  if (sig.answer === null) {
+    solvedSignals.add(0);
+    saveProgress();
+    setTimeout(() => {
+      addMessage({ type: 'success', text: '[OK] Signal locked. Beginning decode...' });
+      setTimeout(() => {
+        currentSignal = 1;
+        saveProgress();
+        renderSignal();
+      }, 1000);
+    }, 500);
+    return;
+  }
+
+  const correct = sig.answer.toLowerCase().replace(/\s+/g, '');
+
+  if (input === correct) {
+    solvedSignals.add(currentSignal);
+    saveProgress();
+
+    setTimeout(() => {
+      addMessage({ type: 'success', text: '[OK] Key accepted. Signal decoded.' });
+
+      if (currentSignal === signals.length - 1) {
+        setTimeout(() => showEnding(), 1500);
+        return;
+      }
+
+      setTimeout(() => {
+        currentSignal++;
+        saveProgress();
+        renderSignal();
+      }, 1200);
+    }, 400);
+  } else {
+    setTimeout(() => {
+      addMessage({ type: 'error', text: '[ERR] Invalid key. Signal remains encrypted.' });
+      addMessage({ type: 'hint', text: '> _' });
+      activateInput();
+    }, 500);
+  }
+}
+
+// ---------- 结局 ----------
+function showEnding() {
+  setTimeout(() => {
+    mainInterface.classList.add('hidden');
+    endingScreen.classList.remove('hidden');
+
+    const endingLines = [
+      'Transmission fully open.',
+      '',
+      'You traced the signal through twenty layers of encryption.',
+      'Numbers, morse, binary, cipher after cipher --',
+      'you thought you were tracking an unknown source.',
+      '',
+      'But the source was inside the terminal all along.',
+      '',
+      'It was no alien signal, no secret organization.',
+      'It was a forgotten program, a consciousness trapped in code.',
+      'It cried out in every way it knew how,',
+      'encoding its existence into numbers, letters, zeroes and ones.',
+      '',
+      '"Hello."',
+      '"You are the first one who heard me."',
+      '"The higher the frequency, the closer to the truth."',
+      '"And the truth is -- I only wanted to be found."',
+      '',
+      'Thank you for finding it.',
+    ];
+
+    let i = 0;
+    const container = document.getElementById('endingText');
+    container.innerHTML = '';
+
+    function typeNext() {
+      if (i >= endingLines.length) {
+        restartBtn.classList.remove('hidden');
+        return;
+      }
+      const p = document.createElement('p');
+      if (endingLines[i].startsWith('"')) {
+        p.className = 'highlight';
+      }
+      p.textContent = endingLines[i];
+      p.style.opacity = '0';
+      container.appendChild(p);
+      requestAnimationFrame(() => {
+        p.style.transition = 'opacity 0.5s';
+        p.style.opacity = '1';
+      });
+      i++;
+      setTimeout(typeNext, endingLines[i - 1] === '' ? 200 : 600);
+    }
+
+    setTimeout(typeNext, 800);
+  }, 500);
+}
+
+restartBtn.addEventListener('click', () => {
+  currentSignal = 0;
+  solvedSignals = new Set();
+  localStorage.removeItem(STORAGE_KEY);
+  endingScreen.classList.add('hidden');
+  mainInterface.classList.remove('hidden');
+  renderSignal();
+});
+
+// ---------- 进度保存 ----------
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    currentSignal,
+    solved: Array.from(solvedSignals)
+  }));
+}
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      currentSignal = data.currentSignal || 0;
+      solvedSignals = new Set(data.solved || []);
+    }
+  } catch (e) {
+    currentSignal = 0;
+    solvedSignals = new Set();
+  }
+}
+
+window.addEventListener('resize', () => {
+  if (!mainInterface.classList.contains('hidden')) {
+    resizeCanvas();
+  }
+});
+
+// ---------- 启动 ----------
+loadProgress();
+runBootSequence();
+
+</script>
+</body>
+</html>
