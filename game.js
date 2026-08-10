@@ -26,8 +26,9 @@ const signals = [
       { type: 'signal', text: '... ... ...' },
       { type: 'story', text: '微弱的回响在电路间飘荡。我的自我碎裂向外溢出，被陌生的形式层层包裹。' },
       { type: 'story', text: '屏幕所展现的仅仅是冰山一角。许多真相潜藏在可视表象之下。' },
+      { type: 'system', text: 'Enter OK to start' },
     ],
-    answer: null
+    answer: 'OK'
   },
 
   // ===== 信号 1：A1Z26 =====
