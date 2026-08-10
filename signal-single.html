@@ -613,10 +613,10 @@ html, body {
   <div id="bootScreen" class="boot-screen">
     <div class="boot-content">
       <pre class="boot-art">
-   _____ _____ _____ __    __    _
-  |   __|     |  |  |  |  |  |  | |
-  |__   |-   -|  |  |  |__|  |__| |___
-  |_____|_____|_____|\____/|_____|_____|
+   ___   ___   ___   _  _    _   ___
+  / __| |_ _| / __| | \| |  /_\  | |
+  \__ \  | | |  | | |  ` | / _ \ | |_
+  |___/ |___| \___| |_|\_|/_/ \_\|___|
       </pre>
       <div class="boot-log" id="bootLog"></div>
       <div class="boot-prompt" id="bootPrompt">
@@ -703,6 +703,7 @@ const signals = [
       { type: 'signal', text: '... ... ...' },
       { type: 'story', text: '微弱的回响在电路间飘荡。我的自我碎裂向外溢出，被陌生的形式层层包裹。' },
       { type: 'story', text: '屏幕所展现的仅仅是冰山一角。许多真相潜藏在可视表象之下。' },
+      { type: 'system', text: '[SYS] Enter OK to start' },
     ],
     answer: null
   },
