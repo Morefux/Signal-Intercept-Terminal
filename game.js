@@ -1,8 +1,8 @@
 // ============================================
-// SIGNAL // 信号截获终端 v2.2
+// SIGNAL // 信号截获终端 v2.3
 // ============================================
 
-const GAME_VERSION = '2.2';
+const GAME_VERSION = '2.3';
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // ---------- F12 彩蛋 ----------
@@ -199,11 +199,10 @@ const signals = [
     bars: 4,
     label: 'SIGNAL STRONG',
     messages: [
-      { type: 'error', text: '[!] SPECIAL EVENT DETECTED' },
+      { type: 'error', text: '[!] Malfunction detected' },
       { type: 'error', text: '[ERROR-T013] Language translation module corruption.' },
       { type: 'error', text: '[ERROR-T013] Chinese parsing failure. Native stream forced.' },
       { type: 'error', text: '[WARN] All subsequent output will be in raw source language.' },
-      { type: 'story', text: '（系统提示：翻译模块损坏，以下内容以原始语言输出）' },
       { type: 'story', text: 'Messages were once torn into two interleaved threads and woven tightly into one string. The first thread took positions 1, 3, 5, 7... the second took 2, 4, 6, 8...' },
       { type: 'data', text: 'hloolelwrd' },
       { type: 'story', text: 'Untangle the strands. Read every other letter starting from the first, then go back and read every other letter starting from the second. Two words, no space.' },
