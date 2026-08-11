@@ -19,12 +19,10 @@
   <!-- Boot screen -->
   <div id="bootScreen" class="boot-screen">
     <div class="boot-content">
-      <pre class="boot-art">
-     ___   ___   ___   _  _    _   ___
+      <pre class="boot-art">___   ___   ___   _  _    _   ___
   / __| |_ _| / __| | \| |  /_\  | |
   \__ \  | | |  | | |  ` | / _ \ | |_
-  |___/ |___| \___| |_|\_|/_/ \_\|___|
-      </pre>
+  |___/ |___| \___| |_|\_|/_/ \_\|___|</pre>
       <div class="boot-log" id="bootLog"></div>
       <div class="boot-prompt" id="bootPrompt">
         <span class="prompt-text">[..] Press any key to establish connection.</span>
@@ -48,6 +46,20 @@
         </div>
       </div>
       <button class="settings-close" id="settingsCloseBtn">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Version update prompt -->
+  <div id="updateModal" class="settings-modal hidden">
+    <div class="settings-box">
+      <div class="settings-title">// TERMINAL UPDATED</div>
+      <div class="settings-item">
+        <span class="settings-label" id="updateMsg">A new version has been detected. Old save data may be incompatible. Reset progress?</span>
+        <div class="settings-confirm show" id="updateConfirm">
+          <span class="yes-btn" id="updateYes">[RESET]</span>
+          <span class="no-btn" id="updateNo">[KEEP]</span>
+        </div>
+      </div>
     </div>
   </div>
 

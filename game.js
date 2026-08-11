@@ -1,6 +1,9 @@
 // ============================================
-// SIGNAL // 信号截获终端 v2.1
+// SIGNAL // 信号截获终端 v2.2
 // ============================================
+
+const GAME_VERSION = '2.2';
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // ---------- F12 彩蛋 ----------
 console.log('%c╔══════════════════════════════════╗', 'color:#00ff66;');
@@ -200,6 +203,7 @@ const signals = [
       { type: 'error', text: '[ERROR-T013] Language translation module corruption.' },
       { type: 'error', text: '[ERROR-T013] Chinese parsing failure. Native stream forced.' },
       { type: 'error', text: '[WARN] All subsequent output will be in raw source language.' },
+      { type: 'story', text: '（系统提示：翻译模块损坏，以下内容以原始语言输出）' },
       { type: 'story', text: 'Messages were once torn into two interleaved threads and woven tightly into one string. The first thread took positions 1, 3, 5, 7... the second took 2, 4, 6, 8...' },
       { type: 'data', text: 'hloolelwrd' },
       { type: 'story', text: 'Untangle the strands. Read every other letter starting from the first, then go back and read every other letter starting from the second. Two words, no space.' },
@@ -339,6 +343,12 @@ const resetConfirm = document.getElementById('resetConfirm');
 const resetYes = document.getElementById('resetYes');
 const resetNo = document.getElementById('resetNo');
 
+// 版本更新提示
+const updateModal = document.getElementById('updateModal');
+const updateYes = document.getElementById('updateYes');
+const updateNo = document.getElementById('updateNo');
+const updateMsg = document.getElementById('updateMsg');
+
 // ---------- 波形图 ----------
 let wavePhase = 0;
 let waveAmplitude = 2;
@@ -382,7 +392,7 @@ function drawWaveform() {
 
 // ---------- 启动序列 ----------
 const bootMessages = [
-  { text: 'SIGNAL INTERCEPT TERMINAL v2.1', cls: 'log-ok', delay: 300 },
+  { text: 'SIGNAL INTERCEPT TERMINAL v2.2', cls: 'log-ok', delay: 300 },
   { text: 'Initializing hardware...', cls: '', delay: 400 },
   { text: '[OK] RF receiver module online', cls: 'log-ok', delay: 300 },
   { text: '[OK] Signal processor loaded', cls: 'log-ok', delay: 250 },
@@ -559,7 +569,10 @@ function activateInput() {
   inputCursor.classList.remove('hidden');
   commandLine.classList.add('active');
   footerHint.textContent = '';
-  setTimeout(() => hiddenInput.focus(), 50);
+  // 触摸设备不自动聚焦（避免弹出软键盘遮挡剧情），用户点击后再聚焦
+  if (!isTouchDevice) {
+    setTimeout(() => hiddenInput.focus(), 50);
+  }
 }
 
 function deactivateInput() {
@@ -722,6 +735,7 @@ restartBtn.addEventListener('click', () => {
 // ---------- 进度保存 ----------
 function saveProgress() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    version: GAME_VERSION,
     currentSignal,
     solved: Array.from(solvedSignals)
   }));
@@ -732,6 +746,14 @@ function loadProgress() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const data = JSON.parse(raw);
+      // 版本不一致时提示用户是否重置
+      if (data.version && data.version !== GAME_VERSION) {
+        showUpdatePrompt(data.version);
+        // 仍然加载旧进度，用户选择后再决定
+        currentSignal = data.currentSignal || 0;
+        solvedSignals = new Set(data.solved || []);
+        return;
+      }
       currentSignal = data.currentSignal || 0;
       solvedSignals = new Set(data.solved || []);
     }
@@ -740,6 +762,25 @@ function loadProgress() {
     solvedSignals = new Set();
   }
 }
+
+// ---------- 版本更新提示 ----------
+function showUpdatePrompt(oldVer) {
+  updateMsg.textContent = 'Terminal updated from v' + oldVer + ' to v' + GAME_VERSION + '. Old save data may be incompatible. Reset progress?';
+  updateModal.classList.remove('hidden');
+}
+
+updateYes.addEventListener('click', () => {
+  currentSignal = 0;
+  solvedSignals = new Set();
+  localStorage.removeItem(STORAGE_KEY);
+  updateModal.classList.add('hidden');
+});
+
+updateNo.addEventListener('click', () => {
+  // 保留进度，但更新版本号
+  saveProgress();
+  updateModal.classList.add('hidden');
+});
 
 window.addEventListener('resize', () => {
   if (!mainInterface.classList.contains('hidden')) {
