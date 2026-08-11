@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SIGNAL // Terminal</title>
   <link rel="stylesheet" href="style.css">
   <!--
@@ -15,11 +15,12 @@
 <body>
   <div class="scanlines"></div>
   <div class="vignette"></div>
+
   <!-- Boot screen -->
   <div id="bootScreen" class="boot-screen">
     <div class="boot-content">
       <pre class="boot-art">
-   ___   ___   ___   _  _    _   ___
+     ___   ___   ___   _  _    _   ___
   / __| |_ _| / __| | \| |  /_\  | |
   \__ \  | | |  | | |  ` | / _ \ | |_
   |___/ |___| \___| |_|\_|/_/ \_\|___|
@@ -30,7 +31,26 @@
         <span class="cursor-blink">█</span>
       </div>
     </div>
+    <button class="boot-settings-btn" id="bootSettingsBtn">[ SETTINGS ]</button>
   </div>
+
+  <!-- Settings panel -->
+  <div id="settingsModal" class="settings-modal hidden">
+    <div class="settings-box">
+      <div class="settings-title">// TERMINAL SETTINGS</div>
+      <div class="settings-item">
+        <span class="settings-label">Progress data is stored locally on this device.</span>
+        <button class="settings-btn" id="resetProgressBtn">RESTART &amp; CLEAR PROGRESS</button>
+        <div class="settings-confirm" id="resetConfirm">
+          All saved progress will be erased. Continue?
+          <span class="yes-btn" id="resetYes">[YES]</span>
+          <span class="no-btn" id="resetNo">[NO]</span>
+        </div>
+      </div>
+      <button class="settings-close" id="settingsCloseBtn">CLOSE</button>
+    </div>
+  </div>
+
   <!-- Main interface -->
   <div id="mainInterface" class="main-interface hidden">
     <header class="terminal-header">
@@ -61,9 +81,10 @@
         <span class="input-cursor hidden" id="inputCursor">█</span>
         <input type="text" id="hiddenInput" class="hidden-input" autocomplete="off" spellcheck="false" autocapitalize="off">
       </div>
-      <div class="footer-hint" id="footerHint">Click terminal to type</div>
+      <div class="footer-hint" id="footerHint"></div>
     </footer>
   </div>
+
   <!-- Answer modal (backup) -->
   <div id="answerModal" class="modal hidden">
     <div class="modal-box">
@@ -72,6 +93,7 @@
       <div class="modal-error hidden" id="modalError">Invalid key</div>
     </div>
   </div>
+
   <!-- Ending screen -->
   <div id="endingScreen" class="ending-screen hidden">
     <div class="ending-content">
@@ -80,6 +102,7 @@
       <button class="ending-btn hidden" id="restartBtn">RESTART TERMINAL</button>
     </div>
   </div>
+
   <script src="game.js"></script>
 </body>
 </html>
