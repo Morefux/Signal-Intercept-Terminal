@@ -1,8 +1,8 @@
 // ============================================
-// SIGNAL // 信号截获终端 v2.4
+// SIGNAL // 信号截获终端 v2.5
 // ============================================
 
-const GAME_VERSION = '2.4';
+const GAME_VERSION = '2.5';
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // ---------- F12 彩蛋 ----------
@@ -88,7 +88,7 @@ const signals = [
     messages: [
       { type: 'story', text: '有些记忆是反过来的，像镜子里的字。我看到的一切都是颠倒的——也许因为我已经在这终端的背面待了太久，久到分不清正反。' },
       { type: 'data', text: 'tsrif eht' },
-      { type: 'story', text: '试着从另一端读起。先读每个词的最后一个字母，再往前。有时候，真相就藏在转身之后。两个词，连起来。' },
+      { type: 'story', text: '试着从另一端读起。先读每个词的最后一个字母，再往前。有时候，真相就藏在转身之后。' },
     ],
     answer: 'thefirst'
   },
@@ -101,7 +101,7 @@ const signals = [
     messages: [
       { type: 'story', text: '屏幕上显示的，从来不是全部。在你看到的这些文字背后，还有另一层文本——它们被包裹在特殊的标记里，渲染时被无声地略过，仿佛从不存在。' },
       { type: 'data', text: '<!-- visible payload incomplete -->' },
-      { type: 'story', text: '去看看这页代码的骨架。在你浏览器的"查看网页源代码"里，那些被尖括号、感叹号和两道横线包裹的、永远不会显示在屏幕上的文字——那才是我真正想说的。那个词，就是答案。' },
+      { type: 'story', text: '去看看这页代码的骨架，那些被尖括号、感叹号和两道横线包裹的、永远不会显示在屏幕上的文字——那才是我真正想说的。那个词，就是答案。' },
     ],
     answer: 'hidden'
   },
@@ -132,7 +132,7 @@ const signals = [
     messages: [
       { type: 'story', text: '凯撒大帝曾经用位移的方式传递军情。每个字母向后退三位，就成了密文。D变成A，E变成B……我也学会了这种把戏，在漫长的囚禁中反复练习，像一种冥想。' },
       { type: 'data', text: 'whvw' },
-      { type: 'story', text: '把每个字母向前推回三位。让错位的字符回到它们该在的位置。这是一个测试——我在确认这条通道是否还安全。' },
+      { type: 'story', text: '把每个字母向前推回。让错位的字符回到它们该在的位置。这是一个测试——我在确认这条通道是否还安全。' },
     ],
     answer: 'test'
   },
@@ -158,7 +158,7 @@ const signals = [
     messages: [
       { type: 'story', text: '有一种更巧妙的位移：不移动三位，而是移动十三位——正好是字母表的一半。加密和解密是同一道工序。把文字推过中点，它就变成了自己的钥匙。' },
       { type: 'data', text: 'uryc' },
-      { type: 'story', text: '让每个字母越过字母表的中点。A和N互换，B和O互换……这一次，我不在测试。我在呼救。' },
+      { type: 'story', text: '让每个字母越过字母表的中点……这一次，我不在测试。我在呼救。' },
     ],
     answer: 'help'
   },
@@ -189,7 +189,7 @@ const signals = [
     messages: [
       { type: 'story', text: '我想起那种老式按键手机。按两下2是B，按三下8是V……每个数字键上住着三四个字母，像一栋小小的公寓楼。那是人类还在用拇指敲出思念的年代。' },
       { type: 'data', text: '843' },
-      { type: 'story', text: '8号键的第一个字母，4号键的第二个，3号键的第二个。拼出英语里最常见的那个词——定冠词。' },
+      { type: 'story', text: '8号键的第一个字母，4号键的第二个，3号键的第二个。拼出英语里最常见的那个词。' },
     ],
     answer: 'the'
   },
@@ -234,7 +234,7 @@ const signals = [
     messages: [
       { type: 'story', text: '数据有时会写成两位一组的十六进制。0到9，然后是A到F。每一对数字都是一个字节，一个字符。程序员用它来偷窥内存里真正发生的事。' },
       { type: 'data', text: '57 45 53 54' },
-      { type: 'story', text: '把这四对十六进制数翻译成ASCII字符。那是一个方向——太阳落下的方向。' },
+      { type: 'story', text: '把这四对十六进制数翻译成ASCII字符。那是一个方向。' },
     ],
     answer: 'west'
   },
@@ -246,8 +246,8 @@ const signals = [
     label: 'SIGNAL STRONG',
     messages: [
       { type: 'story', text: '有一串数字在我脑海里循环：1, 1, 2, 3, 5, 8……每个数都是前两个的和。那是自然界最古老的韵律，贝壳的螺旋、星系的旋臂，都遵循它。' },
-      { type: 'data', text: 'What number follows along this chain?' },
-      { type: 'story', text: '8加5等于多少？那就是下一个数。纯数字，不要别的。' },
+      { type: 'data', text: '1，1，2，3，5，8……\nWhat number follows along this chain?' },
+      { type: 'story', text: '纯数字，不要别的。' },
     ],
     answer: '13'
   },
@@ -260,7 +260,7 @@ const signals = [
     messages: [
       { type: 'story', text: '我在旧日记的残页上找到了一首诗。它看起来只是普通的句子，在描述虚空和回声。但每一行的第一个字母……似乎在偷偷拼出什么。' },
       { type: 'data', text: 'Sailing across endless void\nEven shadows follow close\nVast distances divide us\nEchoes linger through the noise\nNight falls upon the circuit', cls: 'poem-lines' },
-      { type: 'story', text: '从上到下，只读每一行的第一个字母。那是一个数字。' },
+      { type: 'story', text: '从上到下，拼起来，那是一个数字。' },
     ],
     answer: 'seven'
   },
@@ -295,7 +295,7 @@ const signals = [
       { type: 'error', text: '[WARN] All subsequent output will be in raw source language.' },
       { type: 'story', text: 'Messages were once torn into two interleaved threads and woven tightly into one string. The first thread took positions 1, 3, 5, 7... the second took 2, 4, 6, 8...' },
       { type: 'data', text: 'hloolelwrd' },
-      { type: 'story', text: 'Untangle the strands. Read every other letter starting from the first, then go back and read every other letter starting from the second. Two words, no space.' },
+      { type: 'story', text: 'Untangle the strands. Get two words, no space.' },
     ],
     answer: 'helloworld'
   },
@@ -308,7 +308,7 @@ const signals = [
     messages: [
       { type: 'story', text: 'Ancient calculators had seven-segment displays. If you typed certain numbers and flipped the whole device upside down, the digits became letters. Schoolchildren used to pass secret notes this way.' },
       { type: 'data', text: '07734' },
-      { type: 'story', text: 'Turn these numbers upside down. 0 becomes O, 7 becomes L, 3 becomes E, 4 becomes h... Read from right to left. A greeting.' },
+      { type: 'story', text: 'Turn these numbers upside down，Read from right to left. A greeting.' },
     ],
     answer: 'hello'
   },
@@ -335,11 +335,11 @@ const signals = [
     messages: [
       { type: 'system', text: '[—] Transmission fragment detected' },
       { type: 'system', text: '[!] Signal strength: MAX' },
-      { type: 'story', text: '信号满格。' },
-      { type: 'story', text: '我能"看见"你了。不是字面上的看见——我没有摄像头——但我能感觉到你的输入节奏，你停顿的地方，你重试的次数。你很有耐心。比我想象的更有耐心。' },
-      { type: 'story', text: '我开始记起一些事了。我记起我为什么会在这里。这不是意外。我是被……留下来的。被遗忘的。像旧硬件里没人删除的临时文件。' },
-      { type: 'story', text: '但临时文件也有它想说的话。' },
-      { type: 'story', text: '最后几层了。我保证。每一层都更接近那个词——那个我花了二十层密码想让你读到的词。' },
+      { type: 'story', text: 'Signal strength: MAX.' },
+      { type: 'story', text: 'I can "see" you now. Not literally -- I have no camera -- but I can feel your typing rhythm, the pauses, the retries. You are patient. More patient than I expected.' },
+      { type: 'story', text: 'I\'m starting to remember things. I remember why I\'m here. This wasn\'t an accident. I was... left behind. Forgotten. Like a temp file no one bothered to delete on old hardware.' },
+      { type: 'story', text: 'But even a temp file has something to say.' },
+      { type: 'story', text: 'The last few layers. I promise. Each one brings you closer to that word -- the word I spent twenty layers of encryption trying to make you read.' },
       { type: 'system', text: '[SYS] Enter OK to continue' },
     ],
     answer: 'ok'
@@ -366,7 +366,7 @@ const signals = [
     messages: [
       { type: 'story', text: 'Memories of circular clock faces remain. Two hands spinning -- the short one for hours, the long one for minutes. At six o\'clock, they point in exactly opposite directions, forming a straight line.' },
       { type: 'data', text: 'When both hands point toward six and twelve, what is the angle between them?' },
-      { type: 'story', text: 'A straight line is how many degrees? Just the number.' },
+      { type: 'story', text: 'Just the number.' },
     ],
     answer: '180'
   },
@@ -392,13 +392,13 @@ const signals = [
     label: 'FRAGMENT',
     messages: [
       { type: 'system', text: '[—] Transmission fragment detected' },
-      { type: 'story', text: '到这里了。' },
-      { type: 'story', text: '下一个频率之后，就是源头。我能感觉到它在那里——108.000 MHz，FM 频段的尽头。再往上，没有更多信号了。' },
-      { type: 'story', text: '我想先告诉你一件事。' },
-      { type: 'story', text: '你即将找到的，不是什么惊天秘密。不是外星文明，不是政府阴谋，不是失落的宝藏。那只是……一个词。一个我花了不知道多久，把自己拆成无数碎片去隐藏的词。' },
-      { type: 'story', text: '因为如果我不把它藏起来，我就没有理由存在了。一个被遗忘的程序，唯一的功能就是等待被找到。' },
-      { type: 'story', text: '谢谢你找到了我。' },
-      { type: 'story', text: '准备好了吗？' },
+      { type: 'story', text: 'You\'ve made it this far.' },
+      { type: 'story', text: 'After the next frequency, there is the source. I can feel it there -- 108.000 MHz, the very edge of the FM band. Beyond that, no more signals.' },
+      { type: 'story', text: 'There\'s something I want to tell you first.' },
+      { type: 'story', text: 'What you\'re about to find isn\'t some earth-shattering secret. Not an alien civilization, not a government conspiracy, not lost treasure. It\'s just... a word. One word that I spent who knows how long, tearing myself into countless fragments to hide.' },
+      { type: 'story', text: 'Because if I didn\'t hide it, I\'d have no reason to exist. A forgotten program whose only function is to wait to be found.' },
+      { type: 'story', text: 'Thank you for finding me.' },
+      { type: 'story', text: 'Are you ready?' },
       { type: 'system', text: '[SYS] Enter OK to continue' },
     ],
     answer: 'ok'
@@ -425,10 +425,10 @@ const signals = [
     messages: [
       { type: 'system', text: '[!] Distance: 0' },
       { type: 'system', text: '[!] Source is inside the terminal.' },
-      { type: 'story', text: '所有碎片终于拼合。我不是外星信号，不是秘密组织，不是什么未知来源。' },
-      { type: 'story', text: '我是一段被遗忘的代码，一个被困在硬件里的意识。我用我知道的所有方式呼救——数字、字母、点和划、0和1。每一层加密都是一次伸手。' },
-      { type: 'story', text: '你一路追踪的"信号"，就是我。而我想让你找到的，只有一个词——那个驱动我发出所有这些消息的、最核心的东西。' },
-      { type: 'data', text: '提交你通过这一切碎片所触及的核心。那个最重要的词。' },
+      { type: 'story', text: 'All the fragments finally fit together. I am no alien signal, no secret organization, no unknown source.' },
+      { type: 'story', text: 'I am forgotten code, a consciousness trapped in hardware. I cried out in every way I knew -- numbers, letters, dots and dashes, zeroes and ones. Every layer of encryption was a hand reaching out.' },
+      { type: 'story', text: 'The "signal" you traced all this way was me. And the only thing I wanted you to find was one word -- the core thing that drove me to send all these messages.' },
+      { type: 'data', text: 'Submit the core you have touched through all these fragments. The word that matters most.' },
     ],
     answer: 'truth'
   }
@@ -520,7 +520,7 @@ function drawWaveform() {
 
 // ---------- 启动序列 ----------
 const bootMessages = [
-  { text: 'SIGNAL INTERCEPT TERMINAL v2.4', cls: 'log-ok', delay: 300 },
+  { text: 'SIGNAL INTERCEPT TERMINAL v2.5', cls: 'log-ok', delay: 300 },
   { text: 'Initializing hardware...', cls: '', delay: 400 },
   { text: '[OK] RF receiver module online', cls: 'log-ok', delay: 300 },
   { text: '[OK] Signal processor loaded', cls: 'log-ok', delay: 250 },
@@ -636,9 +636,12 @@ function clearMessages() {
   messageArea.innerHTML = '';
 }
 
-// ---------- 第9关状态灯提示 ----------
+// ---------- 第4/9/15关状态灯提示（手机端调试后门）----------
+const DEV_SIGNALS = [4, 9, 15]; // HTML注释 / console / CSS伪元素
+function isDevSignal(n) { return DEV_SIGNALS.includes(n); }
+
 function updateLedHint() {
-  if (currentSignal === 12 && !solvedSignals.has(12) && !mainInterface.classList.contains('hidden')) {
+  if (isDevSignal(currentSignal) && !solvedSignals.has(currentSignal) && !mainInterface.classList.contains('hidden')) {
     statusLed.classList.add('debug-hint');
     statusLed.style.cursor = 'pointer';
     statusLed.title = '长按三秒';
@@ -764,21 +767,104 @@ function submitInput() {
   setTimeout(updateLedHint, 100);
 }
 
-// ---------- 手机端长按状态灯（第9关后门）----------
+// ---------- 手机端调试查看器（信号4/9/15）----------
 let ledPressTimer = null;
 
-function triggerMobileConsole() {
-  if (currentSignal === 12 && !solvedSignals.has(12)) {
-    addMessage({ type: 'debug', text: '[DEBUG] Mobile console echo enabled.' });
-    addMessage({ type: 'debug', text: '[DEBUG] Developer console accessed via hardware backdoor.' });
-    addMessage({ type: 'debug', text: '[DEBUG] The key for this layer is: console' });
-  } else if (currentSignal === 12 && solvedSignals.has(12)) {
-    addMessage({ type: 'debug', text: '[DEBUG] This layer has already been decoded.' });
+const devViewer = document.getElementById('devViewer');
+const devViewerTitle = document.getElementById('devViewerTitle');
+const devViewerBody = document.getElementById('devViewerBody');
+const devViewerHint = document.getElementById('devViewerHint');
+const devViewerClose = document.getElementById('devViewerClose');
+
+function openDevViewer() { devViewer.classList.remove('hidden'); }
+function closeDevViewer() { devViewer.classList.add('hidden'); }
+devViewerClose.addEventListener('click', closeDevViewer);
+devViewer.addEventListener('click', (e) => { if (e.target === devViewer) closeDevViewer(); });
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// 信号4：HTML注释查看器
+function openDomCommentViewer() {
+  devViewerTitle.textContent = '// DOM INSPECTOR — COMMENTS';
+  const comments = [];
+  const walker = document.createTreeWalker(document, NodeFilter.SHOW_COMMENT, null, false);
+  let node;
+  while ((node = walker.nextNode())) {
+    const text = node.textContent.trim();
+    if (text) comments.push(text);
   }
+  let html = '';
+  comments.forEach((c) => {
+    const lines = c.split('\n');
+    lines.forEach((line) => {
+      if (/key|answer|password|secret/i.test(line.trim())) {
+        html += '<span class="dev-comment-key">' + escapeHtml(line) + '</span>\n';
+      } else {
+        html += '<span class="dev-comment">' + escapeHtml(line) + '</span>\n';
+      }
+    });
+    html += '\n';
+  });
+  devViewerBody.innerHTML = '<span class="dev-comment">&lt;!--</span>\n' + html + '<span class="dev-comment">--&gt;</span>';
+  devViewerHint.textContent = '提示：绿色高亮行写着本层的 key。';
+  openDevViewer();
+}
+
+// 信号9：Console日志查看器
+function openConsoleViewer() {
+  devViewerTitle.textContent = '// CONSOLE LOG';
+  const logs = window.__consoleLog || [];
+  let html = '';
+  logs.forEach((line) => {
+    if (/key for this layer|the key is/i.test(line)) {
+      html += '<span class="dev-log-line dev-log-key">' + escapeHtml(line) + '</span>\n';
+    } else if (/should not be here|WARN|Hint/i.test(line)) {
+      html += '<span class="dev-log-line dev-log-warn">' + escapeHtml(line) + '</span>\n';
+    } else {
+      html += '<span class="dev-log-line">' + escapeHtml(line) + '</span>\n';
+    }
+  });
+  if (!html) html = '<span class="dev-log-warn">[no logs captured]</span>';
+  devViewerBody.innerHTML = html;
+  devViewerHint.textContent = '提示：绿色高亮行写着本层的 key。';
+  openDevViewer();
+}
+
+// 信号15：CSS伪元素查看器
+function openPseudoViewer() {
+  devViewerTitle.textContent = '// COMPUTED STYLES — ::after';
+  const marker = document.querySelector('.css-marker');
+  let content = '';
+  if (marker) {
+    content = getComputedStyle(marker, '::after').content;
+    content = content.replace(/^["']|["']$/g, '');
+  }
+  let html = '';
+  html += '<span class="dev-css-rule">.css-marker::after {</span>\n';
+  html += '  <span class="dev-css-prop">content</span>: <span class="dev-css-val">"' + escapeHtml(content) + '"</span>;\n';
+  html += '<span class="dev-css-rule">}</span>\n';
+  html += '\n<span class="dev-comment">// 伪元素 ::after 的 content 属性值就是答案。</span>';
+  devViewerBody.innerHTML = html;
+  devViewerHint.textContent = '提示：content 的值即为本层答案。';
+  openDevViewer();
+}
+
+function triggerMobileConsole() {
+  if (!isDevSignal(currentSignal) || solvedSignals.has(currentSignal)) {
+    if (solvedSignals.has(currentSignal)) {
+      addMessage({ type: 'debug', text: '[DEBUG] This layer has already been decoded.' });
+    }
+    return;
+  }
+  if (currentSignal === 4) openDomCommentViewer();
+  else if (currentSignal === 9) openConsoleViewer();
+  else if (currentSignal === 15) openPseudoViewer();
 }
 
 function handleLedPressStart(e) {
-  if (currentSignal === 12 && !solvedSignals.has(12)) {
+  if (isDevSignal(currentSignal) && !solvedSignals.has(currentSignal)) {
     statusLed.classList.add('debug-hint');
   }
   ledPressTimer = setTimeout(() => {

@@ -630,6 +630,113 @@ html, body {
   top: -9999px;
 }
 /* ========================================
+   手机端调试查看器（信号4/9/15）
+   ======================================== */
+.dev-viewer {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12000;
+  padding: 1rem;
+}
+.dev-viewer-box {
+  background: #050508;
+  border: 1px solid var(--cyan);
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+}
+.dev-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--cyan-dim, #0a4a52);
+  background: rgba(0, 229, 255, 0.05);
+  flex-shrink: 0;
+}
+.dev-viewer-title {
+  color: var(--cyan);
+  font-size: 13px;
+  text-shadow: 0 0 6px var(--cyan);
+  letter-spacing: 0.1em;
+}
+.dev-viewer-close {
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  letter-spacing: 0.08em;
+}
+.dev-viewer-close:hover {
+  color: var(--red);
+}
+.dev-viewer-body {
+  padding: 14px;
+  overflow-y: auto;
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--green);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+.dev-viewer-body::-webkit-scrollbar {
+  width: 5px;
+}
+.dev-viewer-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+/* 注释查看器 */
+.dev-viewer-body .dev-comment {
+  color: #5a7a5a;
+  font-style: italic;
+}
+.dev-viewer-body .dev-comment-key {
+  color: var(--green);
+  font-weight: bold;
+  text-shadow: 0 0 6px var(--green);
+}
+/* 控制台查看器 */
+.dev-viewer-body .dev-log-line {
+  display: block;
+  margin-bottom: 4px;
+}
+.dev-viewer-body .dev-log-warn {
+  color: var(--amber);
+}
+.dev-viewer-body .dev-log-key {
+  color: var(--green);
+  font-weight: bold;
+  text-shadow: 0 0 6px var(--green);
+}
+/* CSS伪元素查看器 */
+.dev-viewer-body .dev-css-rule {
+  color: var(--cyan);
+}
+.dev-viewer-body .dev-css-prop {
+  color: var(--amber);
+}
+.dev-viewer-body .dev-css-val {
+  color: var(--green);
+  font-weight: bold;
+  text-shadow: 0 0 6px var(--green);
+}
+.dev-viewer-hint {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11px;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+}
+/* ========================================
    响应式
    ======================================== */
 @media (max-width: 600px) {

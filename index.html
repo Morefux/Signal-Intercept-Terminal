@@ -11,6 +11,30 @@
     The key for this layer is: hidden
     Don't tell anyone.
   -->
+  <script>
+  // 手机端调试回显：拦截 console 输出，供信号9查看器使用
+  (function(){
+    window.__consoleLog = [];
+    var _log = console.log.bind(console);
+    console.log = function(){
+      try {
+        var args = Array.prototype.slice.call(arguments);
+        var parts = [];
+        for (var i=0;i<args.length;i++){
+          var a = args[i];
+          if (typeof a === 'string'){
+            // 简单解析 %c 样式占位，剥离样式字符串
+            parts.push(a.replace(/%c/g,''));
+          } else {
+            try { parts.push(JSON.stringify(a)); } catch(e){ parts.push(String(a)); }
+          }
+        }
+        window.__consoleLog.push(parts.join(' '));
+      } catch(e){}
+      _log.apply(console, arguments);
+    };
+  })();
+  </script>
 </head>
 <body>
   <div class="scanlines"></div>
@@ -117,6 +141,17 @@
     </div>
   </div>
 
+  <!-- 手机端调试查看器（信号4/9/15） -->
+  <div id="devViewer" class="dev-viewer hidden">
+    <div class="dev-viewer-box">
+      <div class="dev-viewer-header">
+        <span class="dev-viewer-title" id="devViewerTitle">// INSPECTOR</span>
+        <span class="dev-viewer-close" id="devViewerClose">[X]</span>
+      </div>
+      <div class="dev-viewer-body" id="devViewerBody"></div>
+      <div class="dev-viewer-hint" id="devViewerHint"></div>
+    </div>
+  </div>
   <script src="game.js"></script>
 </body>
 </html>
