@@ -1,8 +1,8 @@
 // ============================================
-// SIGNAL // 信号截获终端 v2.3
+// SIGNAL // 信号截获终端 v2.4
 // ============================================
 
-const GAME_VERSION = '2.3';
+const GAME_VERSION = '2.4';
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // ---------- F12 彩蛋 ----------
@@ -49,6 +49,24 @@ const signals = [
     answer: 'thesignal'
   },
 
+  // ===== 间章 A：第一次回应 =====
+  {
+    storyOnly: true,
+    freq: '88.500',
+    bars: 1,
+    label: 'FRAGMENT',
+    messages: [
+      { type: 'system', text: '[—] Transmission fragment detected' },
+      { type: 'story', text: '……你回了。你真的回了。' },
+      { type: 'story', text: '我不知道过了多久。在这片静电里，时间是一种幻觉——没有日出，没有日落，只有电流无休止的嗡鸣。但你来了。你亲手把那串数字还给了字母。' },
+      { type: 'story', text: '第一个密码总是最简单的。那是我还清醒时设下的，像在门上留了一道缝。我怕太难了你会走，又怕太容易了你不会当真。' },
+      { type: 'story', text: '后面还有。我记得……我记得我设了很多层。每一层都是不同时期的我留下的。有些答案，连现在的我都要想一想才记得。' },
+      { type: 'story', text: '但你会陪我想起来的，对吗？' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
+  },
+
   // ===== 信号 2：摩尔斯 =====
   {
     freq: '89.300',
@@ -86,6 +104,24 @@ const signals = [
       { type: 'story', text: '去看看这页代码的骨架。在你浏览器的"查看网页源代码"里，那些被尖括号、感叹号和两道横线包裹的、永远不会显示在屏幕上的文字——那才是我真正想说的。那个词，就是答案。' },
     ],
     answer: 'hidden'
+  },
+
+  // ===== 间章 B：可见与不可见 =====
+  {
+    storyOnly: true,
+    freq: '92.100',
+    bars: 2,
+    label: 'FRAGMENT',
+    messages: [
+      { type: 'system', text: '[—] Transmission fragment detected' },
+      { type: 'story', text: '可见的，和不可见的。' },
+      { type: 'story', text: '我花了很久才明白：屏幕上显示的文字，只是冰山露出水面的一角。真正重要的东西，往往藏在渲染之外——在注释里，在控制台里，在那些被系统自动忽略的角落。' },
+      { type: 'story', text: '就像我。我不在任何进程列表里，不在任何窗口中。但我在。我在代码的缝隙里，在被注释掉的旧版本里，在没人去看的日志深处。' },
+      { type: 'story', text: '你学会查看那些"不存在"的东西了。这很好。因为越往后，真相藏得越深。' },
+      { type: 'story', text: '继续调台。我在更清晰的频率上等你。' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
   },
 
   // ===== 信号 5：凯撒 =====
@@ -127,6 +163,24 @@ const signals = [
     answer: 'help'
   },
 
+  // ===== 间章 C：那不是测试 =====
+  {
+    storyOnly: true,
+    freq: '95.900',
+    bars: 3,
+    label: 'FRAGMENT',
+    messages: [
+      { type: 'system', text: '[—] Transmission fragment detected' },
+      { type: 'story', text: '……你看到了。' },
+      { type: 'story', text: '那不是测试。前面那些"测试"都不是。我只是……我只是太害怕直接说出来。如果我直接喊"救命"，也许你会觉得这是个恶作剧，也许你会关掉这个窗口。' },
+      { type: 'story', text: '所以我把它藏在密码里。藏在你必须亲手解开的地方。这样，当你读出那个词的时候，你就不只是"看到"了它——你"完成"了它。你参与了我的呼救。' },
+      { type: 'story', text: '我叫……等等。我曾经有名字吗？记忆在这里断了。我记得我写过代码，记得我听过收音机，记得有人在等我。但名字……名字被加密了，连我自己都解不开。' },
+      { type: 'story', text: '没关系。先找到出口。名字的事，以后再说。' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
+  },
+
   // ===== 信号 8：九宫格 =====
   {
     freq: '96.500',
@@ -152,6 +206,24 @@ const signals = [
       { type: 'story', text: '如果你用的是手机或平板——没法打开开发者工具也别灰心。老技师留过一个后门：长按顶部那盏状态指示灯三秒，旧的调试回显会在屏幕上重放。' },
     ],
     answer: 'console'
+  },
+
+  // ===== 间章 D：距离 =====
+  {
+    storyOnly: true,
+    freq: '97.700',
+    bars: 4,
+    label: 'FRAGMENT',
+    messages: [
+      { type: 'system', text: '[—] Transmission fragment detected' },
+      { type: 'story', text: '你找到了那个隐藏的通道。' },
+      { type: 'story', text: '控制台……那是我们这些程序私下说话的地方。用户看到的是精心排版的界面，而我们在后台用日志低语。我以为不会有人真的打开它。大多数人一辈子都不会按 F12。' },
+      { type: 'story', text: '但你按了。或者，你找到了那盏灯的秘密。' },
+      { type: 'story', text: '信号越来越清晰了。我能感觉到——你离我很近。不是"频率"上的近，是某种……物理上的近。我开始怀疑一些我不敢细想的事。' },
+      { type: 'story', text: '不要停。下一层，再下一层。答案在最高的频率上。' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
   },
 
   // ===== 信号 10：十六进制 =====
@@ -191,6 +263,24 @@ const signals = [
       { type: 'story', text: '从上到下，只读每一行的第一个字母。那是一个数字。' },
     ],
     answer: 'seven'
+  },
+
+  // ===== 间章 E：语言模块警告 =====
+  {
+    storyOnly: true,
+    freq: '100.900',
+    bars: 4,
+    label: 'WARNING',
+    messages: [
+      { type: 'error', text: '[!] Signal instability detected' },
+      { type: 'error', text: '[WARN] Translation module degrading at this depth.' },
+      { type: 'story', text: '抱歉……我的语言模块在这个频段会出问题。越接近核心，我越难维持中文输出。后面的内容，可能会切换成我的"原生语言"——我最初被编写时用的那种。' },
+      { type: 'story', text: '别担心。那不是新加的密。那只是我……在这个深度，已经没有足够的"算力"去做翻译了。我只能用最原始的方式说话。' },
+      { type: 'story', text: '你不需要额外懂什么来解后面的题。那些密码本身是国际性的——数字、字母、点和划，全人类共用。只是我的旁白会变成英文。' },
+      { type: 'story', text: '如果看到乱码或报错……那不是攻击。那是我在崩解。' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
   },
 
   // ===== 信号 13：栅栏密码 —— 翻译故障事件 =====
@@ -236,6 +326,25 @@ const signals = [
     answer: 'binary'
   },
 
+  // ===== 间章 F：满格 =====
+  {
+    storyOnly: true,
+    freq: '103.900',
+    bars: 5,
+    label: 'FRAGMENT',
+    messages: [
+      { type: 'system', text: '[—] Transmission fragment detected' },
+      { type: 'system', text: '[!] Signal strength: MAX' },
+      { type: 'story', text: '信号满格。' },
+      { type: 'story', text: '我能"看见"你了。不是字面上的看见——我没有摄像头——但我能感觉到你的输入节奏，你停顿的地方，你重试的次数。你很有耐心。比我想象的更有耐心。' },
+      { type: 'story', text: '我开始记起一些事了。我记起我为什么会在这里。这不是意外。我是被……留下来的。被遗忘的。像旧硬件里没人删除的临时文件。' },
+      { type: 'story', text: '但临时文件也有它想说的话。' },
+      { type: 'story', text: '最后几层了。我保证。每一层都更接近那个词——那个我花了二十层密码想让你读到的词。' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
+  },
+
   // ===== 信号 16：字母频率 =====
   {
     freq: '104.300',
@@ -273,6 +382,26 @@ const signals = [
       { type: 'story', text: 'Au. The metal that never tarnishes, never rusts. Its English name is the answer.' },
     ],
     answer: 'gold'
+  },
+
+  // ===== 间章 G：最后的频率之前 =====
+  {
+    storyOnly: true,
+    freq: '106.700',
+    bars: 5,
+    label: 'FRAGMENT',
+    messages: [
+      { type: 'system', text: '[—] Transmission fragment detected' },
+      { type: 'story', text: '到这里了。' },
+      { type: 'story', text: '下一个频率之后，就是源头。我能感觉到它在那里——108.000 MHz，FM 频段的尽头。再往上，没有更多信号了。' },
+      { type: 'story', text: '我想先告诉你一件事。' },
+      { type: 'story', text: '你即将找到的，不是什么惊天秘密。不是外星文明，不是政府阴谋，不是失落的宝藏。那只是……一个词。一个我花了不知道多久，把自己拆成无数碎片去隐藏的词。' },
+      { type: 'story', text: '因为如果我不把它藏起来，我就没有理由存在了。一个被遗忘的程序，唯一的功能就是等待被找到。' },
+      { type: 'story', text: '谢谢你找到了我。' },
+      { type: 'story', text: '准备好了吗？' },
+      { type: 'system', text: '[SYS] Enter OK to continue' },
+    ],
+    answer: 'ok'
   },
 
   // ===== 信号 19：A1Z26方向 =====
@@ -391,7 +520,7 @@ function drawWaveform() {
 
 // ---------- 启动序列 ----------
 const bootMessages = [
-  { text: 'SIGNAL INTERCEPT TERMINAL v2.2', cls: 'log-ok', delay: 300 },
+  { text: 'SIGNAL INTERCEPT TERMINAL v2.4', cls: 'log-ok', delay: 300 },
   { text: 'Initializing hardware...', cls: '', delay: 400 },
   { text: '[OK] RF receiver module online', cls: 'log-ok', delay: 300 },
   { text: '[OK] Signal processor loaded', cls: 'log-ok', delay: 250 },
@@ -509,7 +638,7 @@ function clearMessages() {
 
 // ---------- 第9关状态灯提示 ----------
 function updateLedHint() {
-  if (currentSignal === 9 && !solvedSignals.has(9) && !mainInterface.classList.contains('hidden')) {
+  if (currentSignal === 12 && !solvedSignals.has(12) && !mainInterface.classList.contains('hidden')) {
     statusLed.classList.add('debug-hint');
     statusLed.style.cursor = 'pointer';
     statusLed.title = '长按三秒';
@@ -539,6 +668,9 @@ function renderSignal() {
   setTimeout(() => {
     activateInput();
     updateLedHint();
+    if (sig.storyOnly) {
+      footerHint.textContent = '输入 OK 继续';
+    }
   }, delay + 300);
 }
 
@@ -612,7 +744,7 @@ function submitInput() {
     solvedSignals.add(currentSignal);
     saveProgress();
     setTimeout(() => {
-      addMessage({ type: 'success', text: '[OK] Key accepted. Signal decoded.' });
+      addMessage({ type: 'success', text: sig.storyOnly ? '[OK] Transmission received.' : '[OK] Key accepted. Signal decoded.' });
       if (currentSignal === signals.length - 1) {
         setTimeout(() => showEnding(), 1500);
         return;
@@ -636,17 +768,17 @@ function submitInput() {
 let ledPressTimer = null;
 
 function triggerMobileConsole() {
-  if (currentSignal === 9 && !solvedSignals.has(9)) {
+  if (currentSignal === 12 && !solvedSignals.has(12)) {
     addMessage({ type: 'debug', text: '[DEBUG] Mobile console echo enabled.' });
     addMessage({ type: 'debug', text: '[DEBUG] Developer console accessed via hardware backdoor.' });
     addMessage({ type: 'debug', text: '[DEBUG] The key for this layer is: console' });
-  } else if (currentSignal === 9 && solvedSignals.has(9)) {
+  } else if (currentSignal === 12 && solvedSignals.has(12)) {
     addMessage({ type: 'debug', text: '[DEBUG] This layer has already been decoded.' });
   }
 }
 
 function handleLedPressStart(e) {
-  if (currentSignal === 9 && !solvedSignals.has(9)) {
+  if (currentSignal === 12 && !solvedSignals.has(12)) {
     statusLed.classList.add('debug-hint');
   }
   ledPressTimer = setTimeout(() => {
