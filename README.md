@@ -1,6 +1,6 @@
 # Signal Intercept Terminal
 *Fragments of a trapped mind, waiting to be decoded.*
-!All content is purely fictional.Any resemblance to real‑world individuals or events is purely coincidental.
+ All content is purely fictional.Any resemblance to real‑world individuals or events is purely coincidental.
 
 A cyberpunk‑themed terminal puzzle game. Decode fragmented signals across multiple cipher layers.
 
@@ -31,7 +31,7 @@ Made with ♡
 
 # 信号截获终端
 *一颗被困意识的碎片，等待被破译。*
-!内容纯属虚构，如有雷同，纯属巧合。
+ 内容纯属虚构，如有雷同，纯属巧合。
 
 一款赛博朋克风格终端解谜游戏，破译层层破碎的加密信号。
 
