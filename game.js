@@ -520,6 +520,7 @@ function drawWaveform() {
 
 // ---------- 启动序列 ----------
 const bootMessages = [
+  { text: '[Tip] All content is purely fictional. Any resemblance to real-world individuals or events is purely coincidental.\n内容纯属虚构，如有雷同，纯属巧合。', cls: 'log-warn', delay: 300 },
   { text: 'SIGNAL INTERCEPT TERMINAL v2.5', cls: 'log-ok', delay: 300 },
   { text: 'Initializing hardware...', cls: '', delay: 400 },
   { text: '[OK] RF receiver module online', cls: 'log-ok', delay: 300 },
@@ -644,7 +645,7 @@ function updateLedHint() {
   if (isDevSignal(currentSignal) && !solvedSignals.has(currentSignal) && !mainInterface.classList.contains('hidden')) {
     statusLed.classList.add('debug-hint');
     statusLed.style.cursor = 'pointer';
-    statusLed.title = '长按三秒';
+    statusLed.title = 'Long press for 3 seconds';
   } else {
     statusLed.classList.remove('debug-hint');
     statusLed.style.cursor = '';
@@ -672,7 +673,7 @@ function renderSignal() {
     activateInput();
     updateLedHint();
     if (sig.storyOnly) {
-      footerHint.textContent = '输入 OK 继续';
+      footerHint.textContent = 'Enter OK to continue';
     }
   }, delay + 300);
 }
@@ -808,7 +809,7 @@ function openDomCommentViewer() {
     html += '\n';
   });
   devViewerBody.innerHTML = '<span class="dev-comment">&lt;!--</span>\n' + html + '<span class="dev-comment">--&gt;</span>';
-  devViewerHint.textContent = '提示：绿色高亮行写着本层的 key。';
+  devViewerHint.textContent = 'Hint: the key for this layer is on the highlighted green line.';
   openDevViewer();
 }
 
@@ -828,7 +829,7 @@ function openConsoleViewer() {
   });
   if (!html) html = '<span class="dev-log-warn">[no logs captured]</span>';
   devViewerBody.innerHTML = html;
-  devViewerHint.textContent = '提示：绿色高亮行写着本层的 key。';
+  devViewerHint.textContent = 'Hint: the key for this layer is on the highlighted green line.';
   openDevViewer();
 }
 
@@ -845,9 +846,9 @@ function openPseudoViewer() {
   html += '<span class="dev-css-rule">.css-marker::after {</span>\n';
   html += '  <span class="dev-css-prop">content</span>: <span class="dev-css-val">"' + escapeHtml(content) + '"</span>;\n';
   html += '<span class="dev-css-rule">}</span>\n';
-  html += '\n<span class="dev-comment">// 伪元素 ::after 的 content 属性值就是答案。</span>';
+  html += '\n<span class="dev-comment">// The content value of the ::after pseudo-element is the answer.</span>';
   devViewerBody.innerHTML = html;
-  devViewerHint.textContent = '提示：content 的值即为本层答案。';
+  devViewerHint.textContent = 'Hint: the content value is the answer for this layer.';
   openDevViewer();
 }
 

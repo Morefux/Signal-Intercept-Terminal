@@ -98,19 +98,23 @@ html, body {
   min-height: 120px;
 }
 .boot-log .log-line {
-  opacity: 0;
-  animation: fadeIn 0.1s forwards;
+  line-height: 1.6;
 }
 .boot-log .log-ok { color: var(--green); }
 .boot-log .log-warn { color: var(--amber); }
 .boot-log .log-error { color: var(--red); }
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
 .boot-prompt {
   color: var(--green);
   font-size: 14px;
   cursor: pointer;
+}
+.boot-disclaimer {
+  color: var(--text-dim);
+  font-size: 10px;
+  line-height: 1.6;
+  margin-top: 1.5rem;
+  opacity: 0.6;
+  text-align: center;
 }
 .prompt-text {
   text-shadow: 0 0 8px var(--green);
@@ -799,7 +803,8 @@ html, body {
   |___/ |___| \___| |_|\_|/_/ \_\|___|
       </pre>
       <div class="boot-log" id="bootLog"></div>
-      <div class="boot-prompt" id="bootPrompt">
+      <div class="boot-disclaimer">All content is purely fictional. Any resemblance to real-world individuals or events is purely coincidental.<br>内容纯属虚构，如有雷同，纯属巧合。</div>
+      <div class="boot-prompt hidden" id="bootPrompt">
         <span class="prompt-text">[..] Press any key to establish connection.</span>
         <span class="cursor-blink">█</span>
       </div>
@@ -887,6 +892,18 @@ html, body {
       <div class="ending-glitch" id="endingGlitch">CONNECTION ESTABLISHED</div>
       <div class="ending-text" id="endingText"></div>
       <button class="ending-btn hidden" id="restartBtn">RESTART TERMINAL</button>
+    </div>
+  </div>
+
+  <!-- 手机端调试查看器（信号4/9/15） -->
+  <div id="devViewer" class="dev-viewer hidden">
+    <div class="dev-viewer-box">
+      <div class="dev-viewer-header">
+        <span class="dev-viewer-title" id="devViewerTitle">// INSPECTOR</span>
+        <span class="dev-viewer-close" id="devViewerClose">[X]</span>
+      </div>
+      <div class="dev-viewer-body" id="devViewerBody"></div>
+      <div class="dev-viewer-hint" id="devViewerHint"></div>
     </div>
   </div>
 
@@ -1537,7 +1554,7 @@ function updateLedHint() {
   if (isDevSignal(currentSignal) && !solvedSignals.has(currentSignal) && !mainInterface.classList.contains('hidden')) {
     statusLed.classList.add('debug-hint');
     statusLed.style.cursor = 'pointer';
-    statusLed.title = '长按三秒';
+    statusLed.title = 'Long press for 3 seconds';
   } else {
     statusLed.classList.remove('debug-hint');
     statusLed.style.cursor = '';
@@ -1565,7 +1582,7 @@ function renderSignal() {
     activateInput();
     updateLedHint();
     if (sig.storyOnly) {
-      footerHint.textContent = '输入 OK 继续';
+      footerHint.textContent = 'Enter OK to continue';
     }
   }, delay + 300);
 }
@@ -1701,7 +1718,7 @@ function openDomCommentViewer() {
     html += '\n';
   });
   devViewerBody.innerHTML = '<span class="dev-comment">&lt;!--</span>\n' + html + '<span class="dev-comment">--&gt;</span>';
-  devViewerHint.textContent = '提示：绿色高亮行写着本层的 key。';
+  devViewerHint.textContent = 'Hint: the key for this layer is on the highlighted green line.';
   openDevViewer();
 }
 
@@ -1721,7 +1738,7 @@ function openConsoleViewer() {
   });
   if (!html) html = '<span class="dev-log-warn">[no logs captured]</span>';
   devViewerBody.innerHTML = html;
-  devViewerHint.textContent = '提示：绿色高亮行写着本层的 key。';
+  devViewerHint.textContent = 'Hint: the key for this layer is on the highlighted green line.';
   openDevViewer();
 }
 
@@ -1738,9 +1755,9 @@ function openPseudoViewer() {
   html += '<span class="dev-css-rule">.css-marker::after {</span>\n';
   html += '  <span class="dev-css-prop">content</span>: <span class="dev-css-val">"' + escapeHtml(content) + '"</span>;\n';
   html += '<span class="dev-css-rule">}</span>\n';
-  html += '\n<span class="dev-comment">// 伪元素 ::after 的 content 属性值就是答案。</span>';
+  html += '\n<span class="dev-comment">// The content value of the ::after pseudo-element is the answer.</span>';
   devViewerBody.innerHTML = html;
-  devViewerHint.textContent = '提示：content 的值即为本层答案。';
+  devViewerHint.textContent = 'Hint: the content value is the answer for this layer.';
   openDevViewer();
 }
 
@@ -1903,16 +1920,5 @@ loadProgress();
 runBootSequence();
 
 </script>
-  <!-- 手机端调试查看器（信号4/9/15） -->
-  <div id="devViewer" class="dev-viewer hidden">
-    <div class="dev-viewer-box">
-      <div class="dev-viewer-header">
-        <span class="dev-viewer-title" id="devViewerTitle">// INSPECTOR</span>
-        <span class="dev-viewer-close" id="devViewerClose">[X]</span>
-      </div>
-      <div class="dev-viewer-body" id="devViewerBody"></div>
-      <div class="dev-viewer-hint" id="devViewerHint"></div>
-    </div>
-  </div>
 </body>
 </html>
