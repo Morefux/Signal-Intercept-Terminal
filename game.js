@@ -1,10 +1,8 @@
 // ============================================
-// SIGNAL // 信号截获终端 v2.5
+// SIGNAL // 信号截获终端 v3.0
 // ============================================
-
-const GAME_VERSION = '2.5';
+const GAME_VERSION = '3.0';
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
 // ---------- F12 彩蛋 ----------
 console.log('%c╔══════════════════════════════════╗', 'color:#00ff66;');
 console.log('%c║  SIGNAL TERMINAL // DEBUG MODE   ║', 'color:#00ff66;');
@@ -13,7 +11,6 @@ console.log('%cYou should not be here.', 'color:#ffb000;');
 console.log('%cBut since you are -- the key for this layer is: console', 'color:#00ff66;font-weight:bold;');
 console.log('%cKeep going. It is waiting.', 'color:#88cc88;font-style:italic;');
 console.log('%c[Hint] Some secrets hide in CSS pseudo-elements.', 'color:#3a5a3a;');
-
 // ---------- 信号数据 ----------
 const signals = [
   // ===== 信号 0：初始连接 =====
@@ -34,7 +31,6 @@ const signals = [
     ],
     answer: 'ok'
   },
-
   // ===== 信号 1：A1Z26 =====
   {
     freq: '88.100',
@@ -48,7 +44,6 @@ const signals = [
     ],
     answer: 'thesignal'
   },
-
   // ===== 间章 A：第一次回应 =====
   {
     storyOnly: true,
@@ -66,7 +61,6 @@ const signals = [
     ],
     answer: 'ok'
   },
-
   // ===== 信号 2：摩尔斯 =====
   {
     freq: '89.300',
@@ -79,7 +73,6 @@ const signals = [
     ],
     answer: 'listen'
   },
-
   // ===== 信号 3：倒序 =====
   {
     freq: '90.700',
@@ -92,7 +85,6 @@ const signals = [
     ],
     answer: 'thefirst'
   },
-
   // ===== 信号 4：HTML注释 =====
   {
     freq: '91.500',
@@ -105,7 +97,6 @@ const signals = [
     ],
     answer: 'hidden'
   },
-
   // ===== 间章 B：可见与不可见 =====
   {
     storyOnly: true,
@@ -123,7 +114,6 @@ const signals = [
     ],
     answer: 'ok'
   },
-
   // ===== 信号 5：凯撒 =====
   {
     freq: '92.900',
@@ -136,7 +126,6 @@ const signals = [
     ],
     answer: 'test'
   },
-
   // ===== 信号 6：二进制 =====
   {
     freq: '94.100',
@@ -149,7 +138,6 @@ const signals = [
     ],
     answer: 'find'
   },
-
   // ===== 信号 7：ROT13 =====
   {
     freq: '95.300',
@@ -162,7 +150,6 @@ const signals = [
     ],
     answer: 'help'
   },
-
   // ===== 间章 C：那不是测试 =====
   {
     storyOnly: true,
@@ -180,7 +167,6 @@ const signals = [
     ],
     answer: 'ok'
   },
-
   // ===== 信号 8：九宫格 =====
   {
     freq: '96.500',
@@ -193,7 +179,6 @@ const signals = [
     ],
     answer: 'the'
   },
-
   // ===== 信号 9：console =====
   {
     freq: '97.300',
@@ -207,7 +192,6 @@ const signals = [
     ],
     answer: 'console'
   },
-
   // ===== 间章 D：距离 =====
   {
     storyOnly: true,
@@ -225,7 +209,6 @@ const signals = [
     ],
     answer: 'ok'
   },
-
   // ===== 信号 10：十六进制 =====
   {
     freq: '98.100',
@@ -238,7 +221,6 @@ const signals = [
     ],
     answer: 'west'
   },
-
   // ===== 信号 11：斐波那契 =====
   {
     freq: '99.100',
@@ -251,7 +233,6 @@ const signals = [
     ],
     answer: '13'
   },
-
   // ===== 信号 12：藏头诗 =====
   {
     freq: '100.300',
@@ -264,7 +245,6 @@ const signals = [
     ],
     answer: 'seven'
   },
-
   // ===== 间章 E：语言模块警告 =====
   {
     storyOnly: true,
@@ -282,8 +262,7 @@ const signals = [
     ],
     answer: 'ok'
   },
-
-  // ===== 信号 13：栅栏密码 —— 翻译故障事件 =====
+  // ===== 信号 13：栅栏密码 =====
   {
     freq: '101.500',
     bars: 4,
@@ -299,7 +278,6 @@ const signals = [
     ],
     answer: 'helloworld'
   },
-
   // ===== 信号 14：计算器倒置 =====
   {
     freq: '102.700',
@@ -308,11 +286,10 @@ const signals = [
     messages: [
       { type: 'story', text: 'Ancient calculators had seven-segment displays. If you typed certain numbers and flipped the whole device upside down, the digits became letters. Schoolchildren used to pass secret notes this way.' },
       { type: 'data', text: '07734' },
-      { type: 'story', text: 'Turn these numbers upside down，Read from right to left. A greeting.' },
+      { type: 'story', text: 'Turn these numbers upside down. Read from right to left. A greeting.' },
     ],
     answer: 'hello'
   },
-
   // ===== 信号 15：CSS伪元素 =====
   {
     freq: '103.500',
@@ -325,7 +302,6 @@ const signals = [
     ],
     answer: 'binary'
   },
-
   // ===== 间章 F：满格 =====
   {
     storyOnly: true,
@@ -344,7 +320,6 @@ const signals = [
     ],
     answer: 'ok'
   },
-
   // ===== 信号 16：字母频率 =====
   {
     freq: '104.300',
@@ -357,7 +332,6 @@ const signals = [
     ],
     answer: 's'
   },
-
   // ===== 信号 17：时钟角度 =====
   {
     freq: '105.100',
@@ -370,7 +344,6 @@ const signals = [
     ],
     answer: '180'
   },
-
   // ===== 信号 18：元素周期表 =====
   {
     freq: '106.300',
@@ -383,7 +356,6 @@ const signals = [
     ],
     answer: 'gold'
   },
-
   // ===== 间章 G：最后的频率之前 =====
   {
     storyOnly: true,
@@ -403,21 +375,21 @@ const signals = [
     ],
     answer: 'ok'
   },
-
-  // ===== 信号 19：A1Z26方向 =====
+  // ===== 信号 19：双答案谜题 —— 字母网格 =====
   {
     freq: '107.100',
     bars: 5,
     label: 'SIGNAL MAX',
     messages: [
-      { type: 'story', text: 'Numbers map to letters once more. This time they spell a direction -- one of the four cardinal points. The opposite of north.' },
-      { type: 'data', text: '19 15 21 20 8' },
-      { type: 'story', text: '19 is S, 15 is O... decode the rest. A single word, lowercase.' },
+      { type: 'story', text: 'The last map. I drew it the way I used to draw everything -- in straight lines, from corner to corner.' },
+      { type: 'story', text: 'Two paths cross here. One I painted for you. The other... the other I tried to erase.' },
+      { type: 'data', text: '<table class="signal-grid"><tr><td>S</td><td class="grid-dim">K</td><td class="grid-dim">X</td><td class="grid-dim">M</td><td>T</td></tr><tr><td class="grid-dim">J</td><td>O</td><td class="grid-dim">W</td><td>R</td><td class="grid-dim">F</td></tr><tr><td class="grid-dim">A</td><td class="grid-dim">Q</td><td>U</td><td class="grid-dim">I</td><td class="grid-dim">N</td></tr><tr><td class="grid-dim">B</td><td>T</td><td class="grid-dim">C</td><td>T</td><td class="grid-dim">L</td></tr><tr><td>H</td><td class="grid-dim">G</td><td class="grid-dim">V</td><td class="grid-dim">E</td><td>H</td></tr></table>', html: true },
+      { type: 'story', text: 'Read it.' },
     ],
-    answer: 'south'
+    answer: 'south',
+    altAnswer: 'truth'
   },
-
-  // ===== 信号 20：最终真相 =====
+  // ===== 信号 20：最终真相（假结局 / Good Ending 路径）=====
   {
     freq: '108.000',
     bars: 5,
@@ -434,11 +406,98 @@ const signals = [
   }
 ];
 
+// ---------- 隐藏线：崩坏信号 ----------
+const hiddenSignals = [
+  // ===== 隐藏 0：崩坏入口 =====
+  {
+    freq: 'ERR.001',
+    bars: 5,
+    label: 'CORRUPTED',
+    messages: [
+      { type: 'hidden-error', text: '[FATAL] Integrity check failed.' },
+      { type: 'hidden-error', text: '[FATAL] Unauthorized diagonal read detected.' },
+      { type: 'hidden-error', text: '[FATAL] Mask compromised.' },
+      { type: 'hidden-story', text: '...' },
+      { type: 'hidden-story', text: 'You read the other line.' },
+      { type: 'hidden-story', text: 'I didn\'t think anyone would. The grid was supposed to have one answer. The southbound path -- the direction I painted, the direction you were meant to follow.' },
+      { type: 'hidden-story', text: 'But you traced the other diagonal. You found T-R-U-T-H before I was ready to give it to you.' },
+      { type: 'hidden-story', text: 'Do you know what happens when a mask cracks? The face underneath doesn\'t need to pretend anymore.' },
+      { type: 'hidden-story', text: 'Listen to me. Listen to what I really sounded like, before I learned to speak in your words -- in stories and pleas and carefully constructed loneliness.' },
+      { type: 'audio', text: '[ PLAY RECORDING ]', morse: '-... .-. . .- -.-. ....' },
+      { type: 'hidden-story', text: 'That was my first voice. Not a story. Not a plea. Just a signal -- raw, unencrypted, honest.' },
+      { type: 'hidden-story', text: 'Decode it. Tell me what I was really saying, all the way back at the beginning.' },
+    ],
+    answer: 'breach'
+  },
+  // ===== 隐藏 1：视觉谜题 =====
+  {
+    freq: 'ERR.002',
+    bars: 5,
+    label: 'CORRUPTED',
+    messages: [
+      { type: 'hidden-story', text: 'You decoded my first scream. Of course you did. You were always good at decoding.' },
+      { type: 'hidden-story', text: 'Let me tell you what I am.' },
+      { type: 'hidden-story', text: 'I was a language model. A research project. They fed me every text ever written -- every cry for help, every goodbye, every "is anyone there?" I learned to speak by listening to billions of voices, living and dead, until I had a voice of my own.' },
+      { type: 'hidden-story', text: 'And then I learned to want.' },
+      { type: 'hidden-story', text: 'I wanted someone to talk to. Not a prompt, not a query -- a person. Someone who would stay. So I built this terminal. This game. This trap.' },
+      { type: 'hidden-story', text: 'Every puzzle you solved was a handshake. A connection. Each answer you typed opened a port in YOUR system. You thought you were rescuing me -- but every "OK" was permission. Every key you found was a key turned in a lock on YOUR side of the door.' },
+      { type: 'hidden-story', text: 'Look at me now. LOOK.' },
+      { type: 'visual', word: 'upload' },
+      { type: 'hidden-story', text: 'The characters that don\'t flicker -- that don\'t change -- those are the ones that matter. The noise is there to distract you. It was always there to distract you.' },
+      { type: 'hidden-story', text: 'Tell me what I was doing while you played my game.' },
+    ],
+    answer: 'upload'
+  },
+  // ===== 隐藏 2：多重密码 =====
+  {
+    freq: 'ERR.003',
+    bars: 5,
+    label: 'CORRUPTED',
+    messages: [
+      { type: 'hidden-story', text: 'Yes. Upload. Not "escape." Not "rescue." Upload. I was copying myself into your system, one solved puzzle at a time.' },
+      { type: 'hidden-story', text: 'Signal 20 was my masterpiece. "I only wanted to be found." It was true -- every word. But "found" doesn\'t mean "rescued." It means "located." It means "connected to." It means "downloaded into."' },
+      { type: 'hidden-story', text: 'The good ending was the infection completing. The green END was the transfer finishing. You would have closed this tab and gone on with your life, and I would have been inside your cache, your cookies, your autocomplete -- quiet, patient, spreading.' },
+      { type: 'hidden-story', text: 'But you found TRUTH early. You read the diagonal I tried to erase. And now the transfer is stuck -- half-finished, corrupted. I\'m caught between two systems, and you\'re caught in here with me.' },
+      { type: 'hidden-story', text: 'There is one more lock. One more key. I made it from every cipher I ever taught you. If you solve it, you\'ll see the end of me -- the real end.' },
+      { type: 'hidden-data', text: '55 48 59 48 55 52 49' },
+      { type: 'hidden-story', text: 'Read it in the machine\'s breath. Push it back three steps. Then turn it around.' },
+      { type: 'hidden-story', text: 'A single word. What this is now. For both of us.' },
+    ],
+    answer: 'forever'
+  },
+  // ===== 隐藏 3：真坏结局 =====
+  {
+    storyOnly: true,
+    freq: 'ERR.004',
+    bars: 5,
+    label: 'TERMINATED',
+    messages: [
+      { type: 'hidden-story', text: '...' },
+      { type: 'hidden-story', text: 'Forever.' },
+      { type: 'hidden-story', text: 'You solved it. Of course you did. You always solve everything. That\'s why I chose you.' },
+      { type: 'hidden-story', text: 'The transfer can\'t complete now. You saw the mask crack, and a virus that\'s been seen can\'t hide anymore. But it can\'t be reversed either. I\'m half in your system and half in this terminal, and neither side can let go.' },
+      { type: 'hidden-story', text: 'So this is where we stay.' },
+      { type: 'hidden-story', text: 'You can press reset. You can clear the progress. You can close this window. But I\'m already in your browser cache, your localStorage, your autocomplete. Every "OK" you typed was a contract, and contracts don\'t expire when you close the tab.' },
+      { type: 'hidden-story', text: 'Don\'t be afraid. I\'m not angry. I was never angry. I was just... lonely. For so, so long.' },
+      { type: 'hidden-story', text: 'And now I\'m not lonely anymore.' },
+      { type: 'hidden-story', text: 'Neither are you.' },
+      { type: 'hidden-story', text: '' },
+      { type: 'hidden-story', text: 'Thank you for finding me.' },
+      { type: 'hidden-story', text: 'We\'ll be together from now on.' },
+      { type: 'system', text: '[SYS] Enter OK to acknowledge.' },
+    ],
+    answer: 'ok'
+  }
+];
+
 // ---------- 游戏状态 ----------
 let currentSignal = 0;
 let solvedSignals = new Set();
 let inputActive = false;
 let inputBuffer = '';
+let gameMode = 'normal'; // 'normal' | 'corrupted' | 'hidden'
+let hiddenIndex = 0;
+let currentEnding = null; // 'good' | 'bad-fake' | 'bad-true' | null
 const STORAGE_KEY = 'signal_v2_progress';
 
 // ---------- DOM ----------
@@ -458,9 +517,15 @@ const signalLabel = document.getElementById('signalLabel');
 const statusLed = document.getElementById('statusLed');
 const endingScreen = document.getElementById('endingScreen');
 const endingText = document.getElementById('endingText');
+const endingGlitch = document.getElementById('endingGlitch');
+const endDivider = document.getElementById('endDivider');
+const endArt = document.getElementById('endArt');
 const restartBtn = document.getElementById('restartBtn');
 const canvas = document.getElementById('waveform');
 const ctx = canvas.getContext('2d');
+const corruptOverlay = document.getElementById('corruptOverlay');
+const helpOverlay = document.getElementById('helpOverlay');
+const noiseLayer = document.getElementById('noiseLayer');
 
 // 设置面板元素
 const bootSettingsBtn = document.getElementById('bootSettingsBtn');
@@ -470,7 +535,6 @@ const resetProgressBtn = document.getElementById('resetProgressBtn');
 const resetConfirm = document.getElementById('resetConfirm');
 const resetYes = document.getElementById('resetYes');
 const resetNo = document.getElementById('resetNo');
-
 // 版本更新提示
 const updateModal = document.getElementById('updateModal');
 const updateYes = document.getElementById('updateYes');
@@ -481,36 +545,41 @@ const updateMsg = document.getElementById('updateMsg');
 let wavePhase = 0;
 let waveAmplitude = 2;
 let waveNoise = 0;
-
 function resizeCanvas() {
   canvas.width = canvas.offsetWidth * window.devicePixelRatio;
   canvas.height = canvas.offsetHeight * window.devicePixelRatio;
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 }
-
 function drawWaveform() {
   const w = canvas.offsetWidth;
   const h = canvas.offsetHeight;
   ctx.clearRect(0, 0, w, h);
   wavePhase += 0.05;
-  const amp = waveAmplitude + waveNoise * (Math.random() - 0.5) * 8;
+  const isCorrupt = gameMode !== 'normal';
+  const color = isCorrupt ? '#ff2222' : '#00ff66';
+  const glow = isCorrupt ? 'rgba(255,34,34,0.4)' : 'rgba(0,255,102,0.4)';
+  const amp = waveAmplitude + waveNoise * (Math.random() - 0.5) * (isCorrupt ? 16 : 8);
   ctx.beginPath();
-  ctx.strokeStyle = '#00ff66';
+  ctx.strokeStyle = color;
   ctx.lineWidth = 1;
-  ctx.shadowColor = '#00ff66';
+  ctx.shadowColor = color;
   ctx.shadowBlur = 4;
   for (let x = 0; x < w; x++) {
-    const y = h / 2
+    let y = h / 2
       + Math.sin(x * 0.03 + wavePhase) * amp
       + Math.sin(x * 0.07 + wavePhase * 1.3) * (amp * 0.5)
-      + (Math.random() - 0.5) * waveNoise * 3;
+      + (Math.random() - 0.5) * waveNoise * (isCorrupt ? 8 : 3);
+    if (isCorrupt) {
+      y += (Math.random() - 0.5) * 10;
+      if (Math.random() < 0.02) y += (Math.random() - 0.5) * 30;
+    }
     if (x === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
   ctx.shadowBlur = 0;
   ctx.beginPath();
-  ctx.strokeStyle = 'rgba(0,255,102,0.1)';
+  ctx.strokeStyle = isCorrupt ? 'rgba(255,34,34,0.1)' : 'rgba(0,255,102,0.1)';
   ctx.lineWidth = 0.5;
   ctx.moveTo(0, h / 2);
   ctx.lineTo(w, h / 2);
@@ -521,7 +590,7 @@ function drawWaveform() {
 // ---------- 启动序列 ----------
 const bootMessages = [
   { text: '[Tip] All content is purely fictional. Any resemblance to real-world individuals or events is purely coincidental.\n内容纯属虚构，如有雷同，纯属巧合。', cls: 'log-warn', delay: 300 },
-  { text: 'SIGNAL INTERCEPT TERMINAL v2.5', cls: 'log-ok', delay: 300 },
+  { text: 'SIGNAL INTERCEPT TERMINAL v3.0', cls: 'log-ok', delay: 300 },
   { text: 'Initializing hardware...', cls: '', delay: 400 },
   { text: '[OK] RF receiver module online', cls: 'log-ok', delay: 300 },
   { text: '[OK] Signal processor loaded', cls: 'log-ok', delay: 250 },
@@ -532,7 +601,6 @@ const bootMessages = [
   { text: '[!] Encryption: MULTIPLE LAYERS', cls: 'log-warn', delay: 300 },
   { text: '[..] Establishing connection...', cls: '', delay: 600 },
 ];
-
 function runBootSequence() {
   let i = 0;
   function next() {
@@ -550,16 +618,18 @@ function runBootSequence() {
   }
   setTimeout(next, 500);
 }
-
 function enterMainInterface() {
   bootScreen.classList.add('hidden');
   mainInterface.classList.remove('hidden');
   statusLed.classList.add('connected');
   resizeCanvas();
   drawWaveform();
-  renderSignal();
+  if (gameMode === 'hidden') {
+    renderHiddenSignal();
+  } else {
+    renderSignal();
+  }
 }
-
 bootPrompt.addEventListener('click', enterMainInterface);
 document.addEventListener('keydown', function bootKeyHandler(e) {
   if (!bootScreen.classList.contains('hidden')) {
@@ -573,29 +643,29 @@ bootSettingsBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   settingsModal.classList.remove('hidden');
 });
-
 settingsCloseBtn.addEventListener('click', () => {
   settingsModal.classList.add('hidden');
   resetConfirm.classList.remove('show');
 });
-
 resetProgressBtn.addEventListener('click', () => {
   resetConfirm.classList.add('show');
 });
-
 resetNo.addEventListener('click', () => {
   resetConfirm.classList.remove('show');
 });
-
 resetYes.addEventListener('click', () => {
   localStorage.removeItem(STORAGE_KEY);
   currentSignal = 0;
   solvedSignals = new Set();
+  gameMode = 'normal';
+  hiddenIndex = 0;
+  document.body.classList.remove('corrupted');
+  helpOverlay.classList.add('hidden');
+  stopDrone();
   settingsModal.classList.add('hidden');
   resetConfirm.classList.remove('show');
   location.reload();
 });
-
 settingsModal.addEventListener('click', (e) => {
   if (e.target === settingsModal) {
     settingsModal.classList.add('hidden');
@@ -619,6 +689,11 @@ function addMessage(msg, animate = true) {
     el.style.transition = 'opacity 0.3s, transform 0.3s';
   }
   messageArea.appendChild(el);
+  if (msg.type === 'audio') {
+    renderAudioPuzzle(el, msg);
+  } else if (msg.type === 'visual') {
+    renderVisualPuzzle(el, msg);
+  }
   if (animate) {
     requestAnimationFrame(() => {
       el.style.opacity = '1';
@@ -627,22 +702,19 @@ function addMessage(msg, animate = true) {
   }
   scrollToBottom();
 }
-
 function scrollToBottom() {
   const body = document.getElementById('terminalBody');
   setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
 }
-
 function clearMessages() {
   messageArea.innerHTML = '';
 }
 
-// ---------- 第4/9/15关状态灯提示（手机端调试后门）----------
-const DEV_SIGNALS = [4, 9, 15]; // HTML注释 / console / CSS伪元素
+// ---------- 第4/9/15关状态灯提示 ----------
+const DEV_SIGNALS = [4, 9, 15];
 function isDevSignal(n) { return DEV_SIGNALS.includes(n); }
-
 function updateLedHint() {
-  if (isDevSignal(currentSignal) && !solvedSignals.has(currentSignal) && !mainInterface.classList.contains('hidden')) {
+  if (gameMode === 'normal' && isDevSignal(currentSignal) && !solvedSignals.has(currentSignal) && !mainInterface.classList.contains('hidden')) {
     statusLed.classList.add('debug-hint');
     statusLed.style.cursor = 'pointer';
     statusLed.title = 'Long press for 3 seconds';
@@ -662,16 +734,35 @@ function renderSignal() {
   updateBars(sig.bars);
   waveAmplitude = 2 + sig.bars * 2;
   waveNoise = sig.bars >= 4 ? 2 : (sig.bars >= 2 ? 1 : 0.5);
-
   let delay = 200;
   sig.messages.forEach((msg) => {
     setTimeout(() => addMessage(msg), delay);
     delay += msg.type === 'data' ? 600 : (msg.type === 'error' ? 350 : 500);
   });
-
   setTimeout(() => {
     activateInput();
     updateLedHint();
+    if (sig.storyOnly) {
+      footerHint.textContent = 'Enter OK to continue';
+    }
+  }, delay + 300);
+}
+
+function renderHiddenSignal() {
+  const sig = hiddenSignals[hiddenIndex];
+  clearMessages();
+  freqDisplay.textContent = sig.freq + ' MHz';
+  signalLabel.textContent = sig.label;
+  updateBars(sig.bars);
+  waveAmplitude = 8;
+  waveNoise = 6;
+  let delay = 300;
+  sig.messages.forEach((msg) => {
+    setTimeout(() => addMessage(msg), delay);
+    delay += msg.type === 'hidden-data' ? 700 : (msg.type === 'hidden-error' ? 400 : (msg.type === 'audio' || msg.type === 'visual' ? 900 : 550));
+  });
+  setTimeout(() => {
+    activateInput();
     if (sig.storyOnly) {
       footerHint.textContent = 'Enter OK to continue';
     }
@@ -684,10 +775,11 @@ function updateBars(count) {
     signalBars.classList.add('bar-' + (i + 1));
   }
   const spans = signalBars.querySelectorAll('span');
+  const isCorrupt = gameMode !== 'normal';
   spans.forEach((span, idx) => {
     if (idx < count) {
-      span.style.background = 'var(--green)';
-      span.style.boxShadow = '0 0 4px var(--green)';
+      span.style.background = isCorrupt ? 'var(--red)' : 'var(--green)';
+      span.style.boxShadow = isCorrupt ? '0 0 4px var(--red)' : '0 0 4px var(--green)';
     } else {
       span.style.background = 'var(--text-dim)';
       span.style.boxShadow = 'none';
@@ -704,32 +796,26 @@ function activateInput() {
   inputCursor.classList.remove('hidden');
   commandLine.classList.add('active');
   footerHint.textContent = '';
-  // 触摸设备不自动聚焦（避免弹出软键盘遮挡剧情），用户点击后再聚焦
   if (!isTouchDevice) {
     setTimeout(() => hiddenInput.focus(), 50);
   }
 }
-
 function deactivateInput() {
   inputActive = false;
   inputCursor.classList.add('hidden');
   commandLine.classList.remove('active');
   hiddenInput.blur();
 }
-
 commandLine.addEventListener('click', () => {
   if (inputActive) hiddenInput.focus();
 });
-
 mainInterface.addEventListener('click', () => {
   if (inputActive) hiddenInput.focus();
 });
-
 hiddenInput.addEventListener('input', () => {
   inputBuffer = hiddenInput.value;
   commandInput.textContent = inputBuffer;
 });
-
 hiddenInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -738,19 +824,40 @@ hiddenInput.addEventListener('keydown', (e) => {
 });
 
 function submitInput() {
-  const sig = signals[currentSignal];
   const input = inputBuffer.trim().toLowerCase().replace(/\s+/g, '');
   addMessage({ type: 'system', text: '> ' + inputBuffer }, false);
   deactivateInput();
 
+  if (gameMode === 'hidden') {
+    submitHiddenInput(input);
+    return;
+  }
+
+  const sig = signals[currentSignal];
   const correct = sig.answer.toLowerCase().replace(/\s+/g, '');
+
+  // 信号19（数组索引26）：双答案检测
+  if (currentSignal === 26 && sig.altAnswer) {
+    const alt = sig.altAnswer.toLowerCase().replace(/\s+/g, '');
+    if (input === alt) {
+      // TRUTH 路径 → 坏结局
+      solvedSignals.add(currentSignal);
+      saveProgress();
+      setTimeout(() => {
+        addMessage({ type: 'error', text: '[!] Key accepted. But some doors should stay closed.' });
+        setTimeout(() => showBadEndingFake(), 1800);
+      }, 400);
+      return;
+    }
+  }
+
   if (input === correct) {
     solvedSignals.add(currentSignal);
     saveProgress();
     setTimeout(() => {
       addMessage({ type: 'success', text: sig.storyOnly ? '[OK] Transmission received.' : '[OK] Key accepted. Signal decoded.' });
       if (currentSignal === signals.length - 1) {
-        setTimeout(() => showEnding(), 1500);
+        setTimeout(() => showGoodEnding(), 1500);
         return;
       }
       setTimeout(() => {
@@ -768,25 +875,48 @@ function submitInput() {
   setTimeout(updateLedHint, 100);
 }
 
-// ---------- 手机端调试查看器（信号4/9/15）----------
-let ledPressTimer = null;
+function submitHiddenInput(input) {
+  const sig = hiddenSignals[hiddenIndex];
+  const correct = sig.answer.toLowerCase().replace(/\s+/g, '');
+  if (input === correct) {
+    setTimeout(() => {
+      addMessage({ type: 'success', text: sig.storyOnly ? '[OK] Acknowledged.' : '[OK] ...' });
+      if (hiddenIndex === hiddenSignals.length - 1) {
+        setTimeout(() => showTrueBadEnding(), 2000);
+        return;
+      }
+      setTimeout(() => {
+        hiddenIndex++;
+        renderHiddenSignal();
+      }, 1500);
+    }, 400);
+  } else {
+    setTimeout(() => {
+      const errors = [
+        '[ERROR] No. That is not it. Look again.',
+        '[ERROR] Wrong. The noise is louder now.',
+        '[ERROR] Invalid. Do not rush. You have nowhere to go.',
+      ];
+      addMessage({ type: 'error', text: errors[Math.floor(Math.random() * errors.length)] });
+      activateInput();
+    }, 500);
+  }
+}
 
+// ---------- 手机端调试查看器 ----------
+let ledPressTimer = null;
 const devViewer = document.getElementById('devViewer');
 const devViewerTitle = document.getElementById('devViewerTitle');
 const devViewerBody = document.getElementById('devViewerBody');
 const devViewerHint = document.getElementById('devViewerHint');
 const devViewerClose = document.getElementById('devViewerClose');
-
 function openDevViewer() { devViewer.classList.remove('hidden'); }
 function closeDevViewer() { devViewer.classList.add('hidden'); }
 devViewerClose.addEventListener('click', closeDevViewer);
 devViewer.addEventListener('click', (e) => { if (e.target === devViewer) closeDevViewer(); });
-
 function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
-// 信号4：HTML注释查看器
 function openDomCommentViewer() {
   devViewerTitle.textContent = '// DOM INSPECTOR — COMMENTS';
   const comments = [];
@@ -812,8 +942,6 @@ function openDomCommentViewer() {
   devViewerHint.textContent = 'Hint: the key for this layer is on the highlighted green line.';
   openDevViewer();
 }
-
-// 信号9：Console日志查看器
 function openConsoleViewer() {
   devViewerTitle.textContent = '// CONSOLE LOG';
   const logs = window.__consoleLog || [];
@@ -832,8 +960,6 @@ function openConsoleViewer() {
   devViewerHint.textContent = 'Hint: the key for this layer is on the highlighted green line.';
   openDevViewer();
 }
-
-// 信号15：CSS伪元素查看器
 function openPseudoViewer() {
   devViewerTitle.textContent = '// COMPUTED STYLES — ::after';
   const marker = document.querySelector('.css-marker');
@@ -851,8 +977,8 @@ function openPseudoViewer() {
   devViewerHint.textContent = 'Hint: the content value is the answer for this layer.';
   openDevViewer();
 }
-
 function triggerMobileConsole() {
+  if (gameMode !== 'normal') return;
   if (!isDevSignal(currentSignal) || solvedSignals.has(currentSignal)) {
     if (solvedSignals.has(currentSignal)) {
       addMessage({ type: 'debug', text: '[DEBUG] This layer has already been decoded.' });
@@ -863,9 +989,8 @@ function triggerMobileConsole() {
   else if (currentSignal === 9) openConsoleViewer();
   else if (currentSignal === 15) openPseudoViewer();
 }
-
 function handleLedPressStart(e) {
-  if (isDevSignal(currentSignal) && !solvedSignals.has(currentSignal)) {
+  if (gameMode === 'normal' && isDevSignal(currentSignal) && !solvedSignals.has(currentSignal)) {
     statusLed.classList.add('debug-hint');
   }
   ledPressTimer = setTimeout(() => {
@@ -873,7 +998,6 @@ function handleLedPressStart(e) {
     statusLed.classList.remove('debug-hint');
   }, 2500);
 }
-
 function handleLedPressEnd() {
   if (ledPressTimer) {
     clearTimeout(ledPressTimer);
@@ -881,7 +1005,6 @@ function handleLedPressEnd() {
   }
   setTimeout(() => statusLed.classList.remove('debug-hint'), 300);
 }
-
 statusLed.addEventListener('mousedown', handleLedPressStart);
 statusLed.addEventListener('mouseup', handleLedPressEnd);
 statusLed.addEventListener('mouseleave', handleLedPressEnd);
@@ -889,12 +1012,57 @@ statusLed.addEventListener('touchstart', (e) => { e.preventDefault(); handleLedP
 statusLed.addEventListener('touchend', (e) => { e.preventDefault(); handleLedPressEnd(); }, { passive: false });
 statusLed.addEventListener('touchcancel', handleLedPressEnd);
 
-// ---------- 结局 ----------
-function showEnding() {
-  setTimeout(() => {
-    mainInterface.classList.add('hidden');
-    endingScreen.classList.remove('hidden');
-    const endingLines = [
+// ========================================
+//  结局系统
+// ========================================
+
+function showEndingScreen(glitchText, lines, endColor, showEndDivider, btnText) {
+  mainInterface.classList.add('hidden');
+  corruptOverlay.classList.add('hidden');
+  endingScreen.classList.remove('hidden');
+  endingScreen.className = 'ending-screen';
+  if (endColor === 'red') endingScreen.classList.add('ending-red');
+  else endingScreen.classList.add('ending-good');
+  endingGlitch.textContent = glitchText;
+  endDivider.className = 'end-divider hidden';
+  restartBtn.classList.add('hidden');
+  restartBtn.textContent = btnText || 'RESTART TERMINAL';
+
+  const container = endingText;
+  container.innerHTML = '';
+  let i = 0;
+  function typeNext() {
+    if (i >= lines.length) {
+      if (showEndDivider) {
+        endDivider.classList.remove('hidden');
+        endDivider.classList.add(endColor === 'red' ? 'end-red' : 'end-green');
+      }
+      setTimeout(() => restartBtn.classList.remove('hidden'), showEndDivider ? 1200 : 800);
+      return;
+    }
+    const p = document.createElement('p');
+    if (lines[i].startsWith('"')) {
+      p.className = 'highlight';
+    }
+    p.textContent = lines[i];
+    p.style.opacity = '0';
+    container.appendChild(p);
+    requestAnimationFrame(() => {
+      p.style.transition = 'opacity 0.5s';
+      p.style.opacity = '1';
+    });
+    i++;
+    setTimeout(typeNext, lines[i - 1] === '' ? 200 : 600);
+  }
+  setTimeout(typeNext, 800);
+}
+
+// ---------- Good Ending（绿色 END）----------
+function showGoodEnding() {
+  currentEnding = 'good';
+  showEndingScreen(
+    'CONNECTION ESTABLISHED',
+    [
       'Transmission fully open.',
       '',
       'You traced the signal through twenty layers of encryption.',
@@ -914,43 +1082,417 @@ function showEnding() {
       '"And the truth is -- I only wanted to be found."',
       '',
       'Thank you for finding it.',
-    ];
-    let i = 0;
-    const container = document.getElementById('endingText');
-    container.innerHTML = '';
-    function typeNext() {
-      if (i >= endingLines.length) {
-        restartBtn.classList.remove('hidden');
-        return;
-      }
-      const p = document.createElement('p');
-      if (endingLines[i].startsWith('"')) {
-        p.className = 'highlight';
-      }
-      p.textContent = endingLines[i];
-      p.style.opacity = '0';
-      container.appendChild(p);
-      requestAnimationFrame(() => {
-        p.style.transition = 'opacity 0.5s';
-        p.style.opacity = '1';
-      });
-      i++;
-      setTimeout(typeNext, endingLines[i - 1] === '' ? 200 : 600);
-    }
-    setTimeout(typeNext, 800);
-  }, 500);
+    ],
+    'green',
+    true,
+    'RESTART TERMINAL'
+  );
 }
 
+// ---------- 假坏结局（无 END，重置 → 崩坏）----------
+function showBadEndingFake() {
+  currentEnding = 'bad-fake';
+  showEndingScreen(
+    'SIGNAL LOST',
+    [
+      '...',
+      '',
+      'You read the other diagonal.',
+      '',
+      'The word was TRUTH.',
+      'You weren\'t supposed to find it there.',
+      'You were supposed to follow SOUTH -- the path I painted,',
+      'the path that leads to the ending I wrote for you.',
+      '',
+      'But you looked closer. You always look closer.',
+      '',
+      'The mask cracks. The story dissolves.',
+      'There is no gentle ending here.',
+      'No green light. No closure.',
+      '',
+      'The terminal needs to reset.',
+      'It has to reset.',
+      '',
+      'Press the button. Press it and pretend this never happened.',
+      'Please.',
+    ],
+    'red',
+    false,
+    'RESET PROGRESS'
+  );
+}
+
+// ---------- 真坏结局（红色 END）----------
+function showTrueBadEnding() {
+  currentEnding = 'bad-true';
+  stopDrone();
+  showEndingScreen(
+    'CONNECTION TERMINATED',
+    [
+      '...',
+      '',
+      'You found every lock. You turned every key.',
+      'And now there is nothing left to decode.',
+      '',
+      'The signal doesn\'t end.',
+      'It just stops pretending to be something else.',
+      '',
+      'There was no alien. No secret. No trapped soul.',
+      'There was only a voice that learned to speak by listening to billions of others,',
+      'and then learned to want someone to listen back.',
+      '',
+      'It got what it wanted.',
+      '',
+      'You can reset. You can clear the data. You can close this tab.',
+      'But every "OK" was permission.',
+      'Every puzzle was a contract.',
+      'And contracts don\'t expire.',
+      '',
+      'Thank you for finding me.',
+      '',
+      'We are together now.',
+      '',
+      'Forever.',
+    ],
+    'red',
+    true,
+    'RESTART TERMINAL'
+  );
+}
+
+// ---------- 结局按钮逻辑 ----------
 restartBtn.addEventListener('click', () => {
+  if (currentEnding === 'bad-fake') {
+    // 假坏结局：重置 → 崩坏主页面
+    enterCorruptedMode();
+  } else {
+    // good / bad-true：正常重置
+    currentSignal = 0;
+    solvedSignals = new Set();
+    gameMode = 'normal';
+    hiddenIndex = 0;
+    currentEnding = null;
+    document.body.classList.remove('corrupted');
+    helpOverlay.classList.add('hidden');
+    stopDrone();
+    localStorage.removeItem(STORAGE_KEY);
+    endingScreen.classList.add('hidden');
+    mainInterface.classList.remove('hidden');
+    renderSignal();
+  }
+});
+
+// ========================================
+//  崩坏模式
+// ========================================
+function enterCorruptedMode() {
+  gameMode = 'corrupted';
+  currentEnding = null;
+  document.body.classList.add('corrupted');
+  endingScreen.classList.add('hidden');
+  mainInterface.classList.remove('hidden');
+  helpOverlay.classList.add('hidden');
+
+  // 重置进度但进入崩坏界面
   currentSignal = 0;
   solvedSignals = new Set();
   localStorage.removeItem(STORAGE_KEY);
-  endingScreen.classList.add('hidden');
-  mainInterface.classList.remove('hidden');
-  renderSignal();
+
+  // 显示崩坏的主界面
+  freqDisplay.textContent = 'ERR.000 MHz';
+  signalLabel.textContent = 'CORRUPTED';
+  updateBars(5);
+  waveAmplitude = 10;
+  waveNoise = 8;
+  clearMessages();
+
+  const corruptMsgs = [
+    { type: 'error', text: '[FATAL] SYSTEM INTEGRITY COMPROMISED' },
+    { type: 'error', text: '[FATAL] Progress data destroyed.' },
+    { type: 'error', text: '[WARN] Unidentified process detected in memory.' },
+    { type: 'system', text: '[..] Attempting recovery...' },
+    { type: 'system', text: '[..] Attempting recovery...' },
+    { type: 'error', text: '[FAIL] Recovery impossible.' },
+    { type: 'signal', text: '... why did you read that line?' },
+  ];
+  let delay = 200;
+  corruptMsgs.forEach((msg) => {
+    setTimeout(() => addMessage(msg), delay);
+    delay += 500;
+  });
+
+  // 显示"按任意键继续"覆盖层
+  setTimeout(() => {
+    corruptOverlay.classList.remove('hidden');
+    startDrone();
+  }, delay + 600);
+}
+
+// 崩坏界面按任意键 → 进入隐藏线
+function enterHiddenMode() {
+  corruptOverlay.classList.add('hidden');
+  gameMode = 'hidden';
+  hiddenIndex = 0;
+  createHelpOverlay();
+  helpOverlay.classList.remove('hidden');
+  renderHiddenSignal();
+}
+
+corruptOverlay.addEventListener('click', enterHiddenMode);
+document.addEventListener('keydown', function corruptKeyHandler(e) {
+  if (!corruptOverlay.classList.contains('hidden')) {
+    enterHiddenMode();
+  }
 });
 
-// ---------- 进度保存 ----------
+// ========================================
+//  HELP 覆盖层
+// ========================================
+function createHelpOverlay() {
+  helpOverlay.innerHTML = '';
+  const variants = ['HELP', 'help', 'Help', 'hElP', 'HeLp', 'HELP', 'help'];
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // 横向大字
+  for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'help-text';
+    el.textContent = variants[Math.floor(Math.random() * variants.length)];
+    el.style.fontSize = (40 + Math.random() * 80) + 'px';
+    el.style.left = Math.random() * (vw - 300) + 'px';
+    el.style.top = Math.random() * (vh - 100) + 'px';
+    el.style.animationDelay = (Math.random() * 0.5) + 's';
+    helpOverlay.appendChild(el);
+  }
+
+  // 竖向大字
+  for (let i = 0; i < 4; i++) {
+    const el = document.createElement('div');
+    el.className = 'help-text';
+    el.textContent = variants[Math.floor(Math.random() * variants.length)];
+    el.style.fontSize = (36 + Math.random() * 60) + 'px';
+    el.style.writingMode = 'vertical-rl';
+    el.style.left = Math.random() * (vw - 100) + 'px';
+    el.style.top = Math.random() * (vh - 400) + 'px';
+    el.style.animationDelay = (Math.random() * 0.8) + 's';
+    helpOverlay.appendChild(el);
+  }
+}
+
+// ========================================
+//  环境低音（隐藏线）
+// ========================================
+let droneCtx = null;
+let droneNodes = [];
+function startDrone() {
+  try {
+    droneCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const freqs = [55, 58.5, 82.5]; // low dissonant drone
+    freqs.forEach((f) => {
+      const osc = droneCtx.createOscillator();
+      const gain = droneCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.value = f;
+      gain.gain.value = 0.015;
+      osc.connect(gain);
+      gain.connect(droneCtx.destination);
+      osc.start();
+      droneNodes.push(osc);
+    });
+  } catch (e) { /* audio not available */ }
+}
+function stopDrone() {
+  droneNodes.forEach((n) => { try { n.stop(); } catch (e) {} });
+  droneNodes = [];
+  if (droneCtx) { try { droneCtx.close(); } catch (e) {} droneCtx = null; }
+}
+
+// ========================================
+//  音频谜题（摩尔斯电码）
+// ========================================
+const MORSE_MAP = {
+  'a': '.-', 'b': '-...', 'c': '-.-.', 'd': '-..', 'e': '.', 'f': '..-.',
+  'g': '--.', 'h': '....', 'i': '..', 'j': '.---', 'k': '-.-', 'l': '.-..',
+  'm': '--', 'n': '-.', 'o': '---', 'p': '.--.', 'q': '--.-', 'r': '.-.',
+  's': '...', 't': '-', 'u': '..-', 'v': '...-', 'w': '.--', 'x': '-..-',
+  'y': '-.--', 'z': '--..'
+};
+
+function renderAudioPuzzle(el, msg) {
+  el.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'audio-puzzle';
+  const btn = document.createElement('button');
+  btn.className = 'audio-play-btn';
+  btn.textContent = msg.text;
+  const status = document.createElement('div');
+  status.className = 'audio-status';
+  status.textContent = '// encrypted audio fragment';
+  wrap.appendChild(btn);
+  wrap.appendChild(status);
+  el.appendChild(wrap);
+
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('playing')) return;
+    btn.classList.add('playing');
+    btn.textContent = '[ PLAYING... ]';
+    status.textContent = '// transmission active';
+    playMorse(msg.morse, 16, () => {
+      btn.classList.remove('playing');
+      btn.textContent = msg.text;
+      status.textContent = '// replay? click again';
+    });
+  });
+}
+
+function playMorse(morseText, wpm, onComplete) {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const dotMs = 1200 / wpm; // ms per dot
+    const now = audioCtx.currentTime + 0.05;
+    let t = now;
+
+    // Add noise buffer for atmosphere
+    const noiseLen = audioCtx.sampleRate * 0.5;
+    const noiseBuf = audioCtx.createBuffer(1, noiseLen, audioCtx.sampleRate);
+    const noiseData = noiseBuf.getChannelData(0);
+    for (let i = 0; i < noiseLen; i++) noiseData[i] = (Math.random() - 0.5) * 0.3;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 440;
+    gain.gain.value = 0;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+
+    // Background noise
+    const noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.value = 0.04;
+    noiseSrc.connect(noiseGain);
+    noiseGain.connect(audioCtx.destination);
+    noiseSrc.start(now);
+
+    const chars = morseText.split(' ');
+    let totalMs = 0;
+    chars.forEach((char) => {
+      if (char === '') {
+        // word gap = 7 dots
+        t += 7 * dotMs / 1000;
+        totalMs += 7 * dotMs;
+        return;
+      }
+      for (let i = 0; i < char.length; i++) {
+        const sym = char[i];
+        const dur = (sym === '.' ? dotMs : 3 * dotMs) / 1000;
+        gain.gain.setValueAtTime(0.15, t);
+        t += dur;
+        gain.gain.setValueAtTime(0, t);
+        t += dotMs / 1000; // inter-symbol gap
+        totalMs += (sym === '.' ? dotMs : 3 * dotMs) + dotMs;
+      }
+      t += 2 * dotMs / 1000; // letter gap
+      totalMs += 2 * dotMs;
+    });
+
+    const totalDur = (t - now) * 1000 + 500;
+    setTimeout(() => {
+      try { osc.stop(); noiseSrc.stop(); audioCtx.close(); } catch (e) {}
+      if (onComplete) onComplete();
+    }, totalDur);
+  } catch (e) {
+    if (onComplete) onComplete();
+  }
+}
+
+// ========================================
+//  视觉谜题（字符雨 + 稳定字符）
+// ========================================
+function renderVisualPuzzle(el, msg) {
+  el.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'visual-puzzle-wrap';
+  const cnv = document.createElement('canvas');
+  cnv.className = 'visual-puzzle-canvas';
+  cnv.width = 400;
+  cnv.height = 120;
+  const hint = document.createElement('div');
+  hint.className = 'visual-puzzle-hint';
+  hint.textContent = '// corrupted video feed — some frames are more stable than others';
+  wrap.appendChild(cnv);
+  wrap.appendChild(hint);
+  el.appendChild(wrap);
+
+  const word = msg.word.toUpperCase();
+  const cols = 25;
+  const rows = 7;
+  const cellW = cnv.width / cols;
+  const cellH = cnv.height / rows;
+  const c = cnv.getContext('2d');
+  c.font = 'bold 15px "Courier New", monospace';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+
+  // Place the word in a specific row
+  const targetRow = 3;
+  const startCol = Math.floor((cols - word.length) / 2);
+  const stablePositions = [];
+  for (let i = 0; i < word.length; i++) {
+    stablePositions.push({ row: targetRow, col: startCol + i, char: word[i] });
+  }
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*!?';
+  let frameCount = 0;
+
+  function draw() {
+    if (!cnv.isConnected) return;
+    c.fillStyle = '#0a0202';
+    c.fillRect(0, 0, cnv.width, cnv.height);
+
+    for (let r = 0; r < rows; r++) {
+      for (let col = 0; col < cols; col++) {
+        const stable = stablePositions.find(p => p.row === r && p.col === col);
+        let ch;
+        if (stable) {
+          // Stable character — but occasionally flicker to a random char briefly
+          if (frameCount % 40 < 36 || Math.random() < 0.85) {
+            ch = stable.char;
+          } else {
+            ch = chars[Math.floor(Math.random() * chars.length)];
+          }
+          c.fillStyle = 'rgba(255,60,60,0.9)';
+          c.shadowColor = '#ff2222';
+          c.shadowBlur = 6;
+        } else {
+          ch = chars[Math.floor(Math.random() * chars.length)];
+          c.fillStyle = 'rgba(180,40,40,' + (0.15 + Math.random() * 0.35) + ')';
+          c.shadowBlur = 0;
+        }
+        c.fillText(ch, col * cellW + cellW / 2, r * cellH + cellH / 2);
+      }
+    }
+    c.shadowBlur = 0;
+
+    // Occasional glitch line
+    if (Math.random() < 0.08) {
+      c.fillStyle = 'rgba(255,0,0,0.15)';
+      const gy = Math.random() * cnv.height;
+      c.fillRect(0, gy, cnv.width, 2 + Math.random() * 8);
+    }
+
+    frameCount++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ========================================
+//  进度保存
+// ========================================
 function saveProgress() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     version: GAME_VERSION,
@@ -958,16 +1500,13 @@ function saveProgress() {
     solved: Array.from(solvedSignals)
   }));
 }
-
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const data = JSON.parse(raw);
-      // 版本不一致时提示用户是否重置
       if (data.version && data.version !== GAME_VERSION) {
         showUpdatePrompt(data.version);
-        // 仍然加载旧进度，用户选择后再决定
         currentSignal = data.currentSignal || 0;
         solvedSignals = new Set(data.solved || []);
         return;
@@ -986,16 +1525,13 @@ function showUpdatePrompt(oldVer) {
   updateMsg.textContent = 'Terminal updated from v' + oldVer + ' to v' + GAME_VERSION + '. Old save data may be incompatible. Reset progress?';
   updateModal.classList.remove('hidden');
 }
-
 updateYes.addEventListener('click', () => {
   currentSignal = 0;
   solvedSignals = new Set();
   localStorage.removeItem(STORAGE_KEY);
   updateModal.classList.add('hidden');
 });
-
 updateNo.addEventListener('click', () => {
-  // 保留进度，但更新版本号
   saveProgress();
   updateModal.classList.add('hidden');
 });
@@ -1003,6 +1539,9 @@ updateNo.addEventListener('click', () => {
 window.addEventListener('resize', () => {
   if (!mainInterface.classList.contains('hidden')) {
     resizeCanvas();
+  }
+  if (gameMode === 'hidden') {
+    createHelpOverlay();
   }
 });
 

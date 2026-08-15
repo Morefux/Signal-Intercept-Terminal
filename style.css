@@ -1,5 +1,5 @@
 /* ========================================
-   SIGNAL // 信号截获终端 v2.1
+   SIGNAL // 信号截获终端 v3.0
    ======================================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -748,4 +748,314 @@ html, body {
   .msg-data { font-size: 13px; padding: 8px 10px; }
   .msg-story { margin-bottom: 8px; }
   .boot-settings-btn { bottom: 0.8rem; right: 0.8rem; font-size: 10px; }
+}
+
+/* ========================================
+   信号19：字母网格
+   ======================================== */
+.signal-grid {
+  border-collapse: collapse;
+  margin: 8px auto;
+  font-size: 18px;
+  letter-spacing: 0.3em;
+}
+.signal-grid td {
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  text-shadow: 0 0 4px rgba(170,255,170,0.2);
+  padding: 0;
+}
+.signal-grid td.grid-dim {
+  color: var(--text-dim);
+  opacity: 0.35;
+}
+@media (max-width: 600px) {
+  .signal-grid { font-size: 15px; letter-spacing: 0.2em; }
+  .signal-grid td { width: 30px; height: 30px; }
+}
+
+/* ========================================
+   艺术体 END 分隔线
+   ======================================== */
+.end-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
+  width: 100%;
+}
+.end-line {
+  flex: 1;
+  border-top: 2px dashed currentColor;
+  opacity: 0.7;
+}
+.end-art {
+  font-family: 'Cinzel Decorative', 'Georgia', 'Times New Roman', serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.35em;
+  padding-left: 0.35em;
+  white-space: nowrap;
+}
+.end-divider.end-green {
+  color: var(--green);
+  text-shadow: 0 0 12px var(--green);
+}
+.end-divider.end-green .end-art {
+  text-shadow: 0 0 14px var(--green), 0 0 28px rgba(0,255,102,0.4);
+}
+.end-divider.end-red {
+  color: var(--red);
+  text-shadow: 0 0 12px var(--red);
+}
+.end-divider.end-red .end-art {
+  text-shadow: 0 0 14px var(--red), 0 0 28px rgba(255,51,51,0.5);
+  animation: endRedFlicker 3s infinite;
+}
+@keyframes endRedFlicker {
+  0%, 95%, 100% { opacity: 1; }
+  96% { opacity: 0.7; }
+  97% { opacity: 1; }
+  98% { opacity: 0.85; }
+}
+
+/* ========================================
+   崩坏模式（CORRUPTED）
+   ======================================== */
+body.corrupted {
+  --bg: #0a0000;
+  --bg-terminal: #0d0404;
+  --green: #ff2222;
+  --green-dim: #cc1a1a;
+  --green-glow: rgba(255, 34, 34, 0.15);
+  --cyan: #ff4444;
+  --text: #cc6666;
+  --text-dim: #5a2020;
+  --text-bright: #ff8888;
+  --border: #2a1010;
+}
+body.corrupted .boot-art { color: var(--red); text-shadow: 0 0 10px var(--red); }
+body.corrupted .status-led { background: var(--red); box-shadow: 0 0 8px var(--red); }
+body.corrupted .status-led.connected { background: var(--red); box-shadow: 0 0 8px var(--red); }
+body.corrupted .freq-display { color: var(--red); text-shadow: 0 0 6px var(--red); }
+body.corrupted .signal-bars span { background: var(--red) !important; box-shadow: 0 0 4px var(--red) !important; }
+body.corrupted .prompt-symbol { color: var(--red); text-shadow: 0 0 4px var(--red); }
+body.corrupted .command-input { color: var(--red); text-shadow: 0 0 4px rgba(255,51,51,0.4); }
+body.corrupted .input-cursor { color: var(--red); }
+body.corrupted .msg-data {
+  color: var(--red);
+  background: rgba(255,34,34,0.05);
+  border-left-color: var(--red);
+}
+body.corrupted .msg-story { color: #ff6666; }
+body.corrupted .msg-success { color: var(--red); text-shadow: 0 0 6px var(--red); }
+body.corrupted .msg-signal { color: var(--red); text-shadow: 0 0 4px rgba(255,68,68,0.3); }
+body.corrupted .msg-source { color: var(--text-bright); }
+body.corrupted .ending-glitch { color: var(--red); text-shadow: 0 0 20px var(--red); }
+body.corrupted .ending-text { color: #cc6666; }
+body.corrupted .ending-btn { color: var(--red); border-color: var(--red); text-shadow: 0 0 4px var(--red); }
+body.corrupted .ending-btn:hover { background: rgba(255,51,51,0.1); box-shadow: 0 0 15px rgba(255,51,51,0.2); }
+body.corrupted .signal-grid td { color: var(--red); border-color: var(--border); text-shadow: 0 0 4px rgba(255,51,51,0.3); }
+body.corrupted .signal-grid td.grid-dim { color: var(--text-dim); }
+body.corrupted .terminal-header { background: #100404; }
+body.corrupted .waveform-container { background: #080202; }
+body.corrupted .terminal-footer { background: #080202; }
+
+/* 噪点层 */
+.noise-layer {
+  position: fixed;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  pointer-events: none;
+  z-index: 9500;
+  opacity: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  transition: opacity 0.3s;
+}
+body.corrupted .noise-layer {
+  opacity: 0.35;
+  animation: noiseShift 0.12s steps(3) infinite;
+}
+@keyframes noiseShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 1%); }
+  50% { transform: translate(1%, -2%); }
+  75% { transform: translate(-1%, 2%); }
+  100% { transform: translate(2%, -1%); }
+}
+
+/* 崩坏文字抖动 */
+body.corrupted .msg-story,
+body.corrupted .msg-error,
+body.corrupted .msg-data {
+  animation: corruptJitter 4s infinite;
+}
+@keyframes corruptJitter {
+  0%, 92%, 100% { transform: translate(0, 0); }
+  93% { transform: translate(-1px, 1px); }
+  94% { transform: translate(1px, -1px); }
+  95% { transform: translate(-1px, 0); }
+  96% { transform: translate(1px, 1px); }
+}
+
+/* 崩坏覆盖层（按键继续） */
+.corrupt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10, 0, 0, 0.85);
+  z-index: 10500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  cursor: pointer;
+}
+.corrupt-glitch {
+  color: var(--red);
+  font-size: 1.6rem;
+  text-shadow: 0 0 20px var(--red), 0 0 40px rgba(255,51,51,0.4);
+  letter-spacing: 0.15em;
+  animation: glitch 2s infinite;
+}
+.corrupt-prompt {
+  color: var(--red);
+  font-size: 14px;
+  text-shadow: 0 0 8px var(--red);
+  opacity: 0.8;
+  animation: blink 1.2s steps(1) infinite;
+}
+
+/* ========================================
+   HELP 覆盖层（隐藏线）
+   ======================================== */
+.help-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9800;
+  pointer-events: none;
+  overflow: hidden;
+}
+.help-text {
+  position: absolute;
+  color: rgba(255, 0, 0, 0.18);
+  font-family: 'Arial Black', 'Helvetica', sans-serif;
+  font-weight: 900;
+  white-space: nowrap;
+  text-shadow: 0 0 20px rgba(255,0,0,0.3);
+  animation: helpFlicker 0.15s steps(2) infinite;
+  user-select: none;
+}
+@keyframes helpFlicker {
+  0% { opacity: 0.12; }
+  50% { opacity: 0.25; }
+  100% { opacity: 0.15; }
+}
+
+/* ========================================
+   隐藏线：音频谜题
+   ======================================== */
+.audio-puzzle {
+  margin: 12px 0;
+  text-align: center;
+}
+.audio-play-btn {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+  padding: 10px 28px;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 6px var(--red);
+  box-shadow: 0 0 10px rgba(255,51,51,0.15);
+  transition: all 0.2s;
+}
+.audio-play-btn:hover {
+  background: rgba(255,51,51,0.1);
+  box-shadow: 0 0 18px rgba(255,51,51,0.3);
+}
+.audio-play-btn.playing {
+  opacity: 0.6;
+  cursor: default;
+}
+.audio-status {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-top: 8px;
+  letter-spacing: 0.08em;
+}
+body:not(.corrupted) .audio-play-btn {
+  color: var(--green);
+  border-color: var(--green-dim);
+  text-shadow: 0 0 6px var(--green);
+}
+
+/* ========================================
+   隐藏线：视觉谜题画布
+   ======================================== */
+.visual-puzzle-wrap {
+  margin: 12px 0;
+  text-align: center;
+}
+.visual-puzzle-canvas {
+  border: 1px solid var(--red);
+  box-shadow: 0 0 12px rgba(255,51,51,0.2);
+  max-width: 100%;
+  image-rendering: pixelated;
+}
+.visual-puzzle-hint {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+}
+
+/* ========================================
+   隐藏线：红色剧情消息
+   ======================================== */
+.msg-hidden-story {
+  color: #ff4444;
+  text-shadow: 0 0 4px rgba(255,51,51,0.3);
+  font-style: italic;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+.msg-hidden-data {
+  color: var(--red);
+  background: rgba(255,34,34,0.05);
+  border-left: 2px solid var(--red);
+  padding: 10px 14px;
+  margin: 10px 0;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.msg-hidden-error {
+  color: var(--red);
+  text-shadow: 0 0 6px var(--red);
+  animation: glitch 2s infinite;
+}
+
+/* 结局屏幕变体 */
+.ending-screen.ending-red .ending-glitch {
+  color: var(--red);
+  text-shadow: 0 0 20px var(--red);
+}
+.ending-screen.ending-red .ending-text {
+  color: #cc6666;
+}
+.ending-screen.ending-red {
+  background: #080000;
+}
+.ending-screen.ending-good .ending-text .highlight {
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
 }

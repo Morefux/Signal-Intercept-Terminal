@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SIGNAL // Terminal</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
   <!--
     You seem to be digging through the source.
     Some things hide in plain sight.
@@ -23,7 +24,6 @@
         for (var i=0;i<args.length;i++){
           var a = args[i];
           if (typeof a === 'string'){
-            // 简单解析 %c 样式占位，剥离样式字符串
             parts.push(a.replace(/%c/g,''));
           } else {
             try { parts.push(JSON.stringify(a)); } catch(e){ parts.push(String(a)); }
@@ -39,7 +39,7 @@
 <body>
   <div class="scanlines"></div>
   <div class="vignette"></div>
-
+  <div class="noise-layer" id="noiseLayer"></div>
   <!-- Boot screen -->
   <div id="bootScreen" class="boot-screen">
     <div class="boot-content">
@@ -57,7 +57,6 @@
     </div>
     <button class="boot-settings-btn" id="bootSettingsBtn">[ SETTINGS ]</button>
   </div>
-
   <!-- Settings panel -->
   <div id="settingsModal" class="settings-modal hidden">
     <div class="settings-box">
@@ -74,7 +73,6 @@
       <button class="settings-close" id="settingsCloseBtn">CLOSE</button>
     </div>
   </div>
-
   <!-- Version update prompt -->
   <div id="updateModal" class="settings-modal hidden">
     <div class="settings-box">
@@ -88,7 +86,6 @@
       </div>
     </div>
   </div>
-
   <!-- Main interface -->
   <div id="mainInterface" class="main-interface hidden">
     <header class="terminal-header">
@@ -122,7 +119,6 @@
       <div class="footer-hint" id="footerHint"></div>
     </footer>
   </div>
-
   <!-- Answer modal (backup) -->
   <div id="answerModal" class="modal hidden">
     <div class="modal-box">
@@ -131,16 +127,26 @@
       <div class="modal-error hidden" id="modalError">Invalid key</div>
     </div>
   </div>
-
   <!-- Ending screen -->
   <div id="endingScreen" class="ending-screen hidden">
     <div class="ending-content">
       <div class="ending-glitch" id="endingGlitch">CONNECTION ESTABLISHED</div>
       <div class="ending-text" id="endingText"></div>
+      <div class="end-divider hidden" id="endDivider">
+        <span class="end-line"></span>
+        <span class="end-art" id="endArt">END</span>
+        <span class="end-line"></span>
+      </div>
       <button class="ending-btn hidden" id="restartBtn">RESTART TERMINAL</button>
     </div>
   </div>
-
+  <!-- Corrupted press-any-key overlay -->
+  <div id="corruptOverlay" class="corrupt-overlay hidden">
+    <div class="corrupt-glitch" id="corruptGlitch">SYSTEM FAILURE</div>
+    <div class="corrupt-prompt">Press any key to continue_</div>
+  </div>
+  <!-- HELP overlay (hidden line) -->
+  <div id="helpOverlay" class="help-overlay hidden"></div>
   <!-- 手机端调试查看器（信号4/9/15） -->
   <div id="devViewer" class="dev-viewer hidden">
     <div class="dev-viewer-box">
