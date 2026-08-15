@@ -94,6 +94,7 @@ const signals = [
       { type: 'story', text: '屏幕上显示的，从来不是全部。在你看到的这些文字背后，还有另一层文本——它们被包裹在特殊的标记里，渲染时被无声地略过，仿佛从不存在。' },
       { type: 'data', text: '<!-- visible payload incomplete -->' },
       { type: 'story', text: '去看看这页代码的骨架，那些被尖括号、感叹号和两道横线包裹的、永远不会显示在屏幕上的文字——那才是我真正想说的。那个词，就是答案。' },
+      { type: 'story', text: '如果你用的是手机或平板——没法查看网页源代码也别灰心。老技师留过一个后门：长按顶部那盏状态指示灯三秒，注释内容会直接显示在屏幕上。' },
     ],
     answer: 'hidden'
   },
@@ -299,6 +300,7 @@ const signals = [
       { type: 'story', text: 'Some fragments adhere only to the styling layer of this page -- properties that control how things look, not what they say. Pseudo-elements, they are called. They can render text that never appears in the HTML itself.' },
       { type: 'data', text: '<span class="css-marker">Rendered content incomplete.</span>', html: true },
       { type: 'story', text: 'Inspect this element. In the developer tools, look for a property called ::after. The answer is hidden there -- a word describing the language of zeroes and ones.' },
+      { type: 'story', text: 'On a phone or tablet, you cannot open developer tools. But the old technician left a back door: long-press the status light at the top for three seconds, and the computed styles will appear on screen.' },
     ],
     answer: 'binary'
   },
@@ -711,7 +713,8 @@ function clearMessages() {
 }
 
 // ---------- 第4/9/15关状态灯提示 ----------
-const DEV_SIGNALS = [4, 9, 15];
+// 注意：此处是数组索引而非信号编号（间章也占索引位）
+const DEV_SIGNALS = [5, 12, 20];
 function isDevSignal(n) { return DEV_SIGNALS.includes(n); }
 function updateLedHint() {
   if (gameMode === 'normal' && isDevSignal(currentSignal) && !solvedSignals.has(currentSignal) && !mainInterface.classList.contains('hidden')) {
@@ -985,9 +988,9 @@ function triggerMobileConsole() {
     }
     return;
   }
-  if (currentSignal === 4) openDomCommentViewer();
-  else if (currentSignal === 9) openConsoleViewer();
-  else if (currentSignal === 15) openPseudoViewer();
+  if (currentSignal === 5) openDomCommentViewer();
+  else if (currentSignal === 12) openConsoleViewer();
+  else if (currentSignal === 20) openPseudoViewer();
 }
 function handleLedPressStart(e) {
   if (gameMode === 'normal' && isDevSignal(currentSignal) && !solvedSignals.has(currentSignal)) {
