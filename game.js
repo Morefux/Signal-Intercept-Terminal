@@ -273,7 +273,7 @@ const signals = [
       { type: 'error', text: '[ERROR-T013] Chinese parsing failure. Native stream forced.' },
       { type: 'error', text: '[WARN] All subsequent output will be in raw source language.' },
       { type: 'story', text: 'Messages were once torn into two interleaved threads and woven tightly into one string. The first thread took positions 1, 3, 5, 7... the second took 2, 4, 6, 8...' },
-      { type: 'data', text: 'hloolelwrd' },
+      { type: 'data', text: 'hweolrllod' },
       { type: 'story', text: 'Untangle the strands. Get two words, no space.' },
     ],
     answer: 'helloworld'
