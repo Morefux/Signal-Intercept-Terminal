@@ -23,7 +23,6 @@ A cyberpunk‑themed terminal puzzle game. Decode fragmented signals across mult
 - Some clues are hidden within page source (F12)
 - Mid‑game translation failure shifts narrative from Chinese to raw English
 - Progress saves to browser local storage
-- `signal‑single.html` is the all‑in‑one single‑file release, no extra asset files required.
 
 ## Credits
 Made with ♡
@@ -55,7 +54,6 @@ Made with ♡
 - 部分线索藏在网页源码内（F12开发者工具）
 - 游戏中段翻译模块故障，剧情会从中文切换为原生英文
 - 游戏进度保存在浏览器本地存储
-- `signal‑single.html` 为单文件整合版本，无需额外资源文件，直接双击打开即可游玩。
 
 ## 制作
 Made with ♡
