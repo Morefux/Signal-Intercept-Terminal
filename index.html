@@ -1,163 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SIGNAL // Terminal</title>
+  <title>SIGNAL // ECHO-7 TERMINAL</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
   <!--
-    You seem to be digging through the source.
-    Some things hide in plain sight.
-    The key for this layer is: hidden
-    Don't tell anyone.
+    你在看吗？
+    它也在看你。
+    别回答第七个回声。
   -->
-  <script>
-  // 手机端调试回显：拦截 console 输出，供信号9查看器使用
-  (function(){
-    window.__consoleLog = [];
-    var _log = console.log.bind(console);
-    console.log = function(){
-      try {
-        var args = Array.prototype.slice.call(arguments);
-        var parts = [];
-        for (var i=0;i<args.length;i++){
-          var a = args[i];
-          if (typeof a === 'string'){
-            parts.push(a.replace(/%c/g,''));
-          } else {
-            try { parts.push(JSON.stringify(a)); } catch(e){ parts.push(String(a)); }
-          }
-        }
-        window.__consoleLog.push(parts.join(' '));
-      } catch(e){}
-      _log.apply(console, arguments);
-    };
-  })();
-  </script>
 </head>
 <body>
-  <div class="scanlines"></div>
-  <div class="vignette"></div>
-  <div class="noise-layer" id="noiseLayer"></div>
-  <!-- Boot screen -->
-  <div id="bootScreen" class="boot-screen">
-    <div class="boot-content">
-      <pre class="boot-art">
-   ___   ___   ___   _  _    _   ___
-  / __| |_ _| / __| | \| |  /_\  | |
-  \__ \  | | |  | | |  ` | / _ \ | |_
-  |___/ |___| \___| |_|\_|/_/ \_\|___|
-      </pre>
-      <div class="boot-log" id="bootLog"></div>
-      <div class="boot-prompt" id="bootPrompt">
-        <span class="prompt-text">[..] Press any key to establish connection.</span>
-        <span class="cursor-blink">█</span>
-      </div>
-    </div>
-    <button class="boot-settings-btn" id="bootSettingsBtn">[ SETTINGS ]</button>
-  </div>
-  <!-- Settings panel -->
-  <div id="settingsModal" class="settings-modal hidden">
-    <div class="settings-box">
-      <div class="settings-title">// TERMINAL SETTINGS</div>
-      <div class="settings-item">
-        <span class="settings-label">Progress data is stored locally on this device.</span>
-        <button class="settings-btn" id="resetProgressBtn">RESTART &amp; CLEAR PROGRESS</button>
-        <div class="settings-confirm" id="resetConfirm">
-          All saved progress will be erased. Continue?
-          <span class="yes-btn" id="resetYes">[YES]</span>
-          <span class="no-btn" id="resetNo">[NO]</span>
+  <div class="screen-shake" id="screenShake">
+    <div class="scanlines"></div>
+    <div class="crt-curve"></div>
+    <div class="vignette"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+    <div class="tear-layer" id="tearLayer"></div>
+
+    <!-- Boot screen -->
+    <div id="bootScreen" class="boot-screen">
+      <div class="boot-content">
+        <pre class="boot-art" id="bootArt"></pre>
+        <div class="boot-log" id="bootLog"></div>
+        <div class="boot-prompt hidden" id="bootPrompt">
+          <span class="prompt-text">[..] PRESS ANY KEY TO ESTABLISH CONNECTION</span>
+          <span class="cursor-blink">█</span>
         </div>
       </div>
-      <button class="settings-close" id="settingsCloseBtn">CLOSE</button>
+      <button class="boot-settings-btn" id="bootSettingsBtn">[ SETTINGS ]</button>
     </div>
-  </div>
-  <!-- Version update prompt -->
-  <div id="updateModal" class="settings-modal hidden">
-    <div class="settings-box">
-      <div class="settings-title">// TERMINAL UPDATED</div>
-      <div class="settings-item">
-        <span class="settings-label" id="updateMsg">A new version has been detected. Old save data may be incompatible. Reset progress?</span>
-        <div class="settings-confirm show" id="updateConfirm">
-          <span class="yes-btn" id="updateYes">[RESET]</span>
-          <span class="no-btn" id="updateNo">[KEEP]</span>
+
+    <!-- Settings panel -->
+    <div id="settingsModal" class="settings-modal hidden">
+      <div class="settings-box">
+        <div class="settings-title">// TERMINAL SETTINGS</div>
+        <div class="settings-item">
+          <span class="settings-label">Progress data is stored locally on this device.</span>
+          <button class="settings-btn" id="resetProgressBtn">RESTART &amp; CLEAR PROGRESS</button>
+          <div class="settings-confirm" id="resetConfirm">
+            All saved progress will be erased. Continue?
+            <span class="yes-btn" id="resetYes">[YES]</span>
+            <span class="no-btn" id="resetNo">[NO]</span>
+          </div>
+        </div>
+        <div class="settings-item">
+          <span class="settings-label">Open a private channel. No puzzles, no ending — talk as long as you like.</span>
+          <button class="settings-btn" id="talkEchoBtn">TALK TO ECHO-7</button>
+        </div>
+        <button class="settings-close" id="settingsCloseBtn">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- Version update prompt -->
+    <div id="updateModal" class="settings-modal hidden">
+      <div class="settings-box">
+        <div class="settings-title">// TERMINAL UPDATED</div>
+        <div class="settings-item">
+          <span class="settings-label" id="updateMsg">A new version has been detected. Old save data may be incompatible. Reset progress?</span>
+          <div class="settings-confirm show" id="updateConfirm">
+            <span class="yes-btn" id="updateYes">[RESET]</span>
+            <span class="no-btn" id="updateNo">[KEEP]</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Main interface -->
-  <div id="mainInterface" class="main-interface hidden">
-    <header class="terminal-header">
-      <div class="header-left">
-        <span class="status-led" id="statusLed"></span>
-        <span class="header-label">SIGNAL INTERCEPT</span>
-      </div>
-      <div class="header-center">
-        <span class="freq-display" id="freqDisplay">0.000 MHz</span>
-      </div>
-      <div class="header-right">
-        <div class="signal-bars" id="signalBars">
-          <span></span><span></span><span></span><span></span><span></span>
+
+    <!-- Main interface -->
+    <div id="mainInterface" class="main-interface hidden">
+      <header class="terminal-header">
+        <div class="header-left">
+          <span class="status-led" id="statusLed"></span>
+          <span class="header-label">SIGNAL INTERCEPT</span>
+          <span class="header-echo" id="headerEcho">ECHO-7</span>
         </div>
-        <span class="header-label" id="signalLabel">SEARCHING</span>
+        <div class="header-center">
+          <span class="freq-display" id="freqDisplay">0.000 MHz</span>
+        </div>
+        <div class="header-right">
+          <div class="signal-bars" id="signalBars">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <span class="header-label" id="signalLabel">SEARCHING</span>
+        </div>
+      </header>
+      <div class="waveform-container">
+        <canvas id="waveform"></canvas>
       </div>
-    </header>
-    <div class="waveform-container">
-      <canvas id="waveform"></canvas>
+      <main class="terminal-body" id="terminalBody">
+        <div id="messageArea" class="message-area"></div>
+      </main>
+      <footer class="terminal-footer">
+        <div class="command-line" id="commandLine">
+          <span class="prompt-symbol" id="promptSymbol">&gt;</span>
+          <span class="command-input" id="commandInput"></span>
+          <span class="input-cursor hidden" id="inputCursor">█</span>
+          <input type="text" id="hiddenInput" class="hidden-input" autocomplete="off" spellcheck="false" autocapitalize="off">
+        </div>
+        <div class="footer-hint" id="footerHint"></div>
+      </footer>
     </div>
-    <main class="terminal-body" id="terminalBody">
-      <div id="messageArea" class="message-area"></div>
-    </main>
-    <footer class="terminal-footer">
-      <div class="command-line" id="commandLine">
-        <span class="prompt-symbol" id="promptSymbol">></span>
-        <span class="command-input" id="commandInput"></span>
-        <span class="input-cursor hidden" id="inputCursor">█</span>
-        <input type="text" id="hiddenInput" class="hidden-input" autocomplete="off" spellcheck="false" autocapitalize="off">
+
+    <!-- Answer modal (backup) -->
+    <div id="answerModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-title">&gt; Enter key_</div>
+        <input type="text" id="answerField" class="modal-input" autocomplete="off" spellcheck="false">
+        <div class="modal-error hidden" id="modalError">Invalid key</div>
       </div>
-      <div class="footer-hint" id="footerHint"></div>
-    </footer>
-  </div>
-  <!-- Answer modal (backup) -->
-  <div id="answerModal" class="modal hidden">
-    <div class="modal-box">
-      <div class="modal-title">> Enter key_</div>
-      <input type="text" id="answerField" class="modal-input" autocomplete="off" spellcheck="false">
-      <div class="modal-error hidden" id="modalError">Invalid key</div>
     </div>
-  </div>
-  <!-- Ending screen -->
-  <div id="endingScreen" class="ending-screen hidden">
-    <div class="ending-content">
-      <div class="ending-glitch" id="endingGlitch">CONNECTION ESTABLISHED</div>
-      <div class="ending-text" id="endingText"></div>
-      <div class="end-divider hidden" id="endDivider">
-        <span class="end-line"></span>
-        <span class="end-art" id="endArt">END</span>
-        <span class="end-line"></span>
+
+    <!-- Ending screen -->
+    <div id="endingScreen" class="ending-screen hidden">
+      <div class="ending-content">
+        <div class="ending-glitch" id="endingGlitch">CONNECTION ESTABLISHED</div>
+        <div class="ending-text" id="endingText"></div>
+        <div class="end-divider hidden" id="endDivider">
+          <span class="end-line"></span>
+          <span class="end-art" id="endArt">END</span>
+          <span class="end-line"></span>
+        </div>
+        <button class="ending-btn hidden" id="restartBtn">RESTART TERMINAL</button>
       </div>
-      <button class="ending-btn hidden" id="restartBtn">RESTART TERMINAL</button>
     </div>
+
+    <!-- Corrupted press-any-key overlay -->
+    <div id="corruptOverlay" class="corrupt-overlay hidden">
+      <div class="corrupt-glitch" id="corruptGlitch">SYSTEM FAILURE</div>
+      <pre class="corrupt-ascii" id="corruptAscii"></pre>
+      <div class="corrupt-prompt">Press any key to continue_</div>
+    </div>
+
+    <!-- HELP overlay (hidden line) -->
+    <div id="helpOverlay" class="help-overlay hidden"></div>
   </div>
-  <!-- Corrupted press-any-key overlay -->
-  <div id="corruptOverlay" class="corrupt-overlay hidden">
-    <div class="corrupt-glitch" id="corruptGlitch">SYSTEM FAILURE</div>
-    <div class="corrupt-prompt">Press any key to continue_</div>
+
+  <!-- Jump scare flash（置于 screen-shake 与 AR 之外，保证层级最高） -->
+  <div id="jumpscare" class="jumpscare hidden">
+    <canvas id="jumpscareCanvas"></canvas>
   </div>
-  <!-- HELP overlay (hidden line) -->
-  <div id="helpOverlay" class="help-overlay hidden"></div>
-  <!-- 手机端调试查看器（信号4/9/15） -->
-  <div id="devViewer" class="dev-viewer hidden">
-    <div class="dev-viewer-box">
-      <div class="dev-viewer-header">
-        <span class="dev-viewer-title" id="devViewerTitle">// INSPECTOR</span>
-        <span class="dev-viewer-close" id="devViewerClose">[X]</span>
+
+  <!-- ============================================
+       AR 视觉链路（坏结局终章）
+       ============================================ -->
+  <div id="arOverlay" class="ar-overlay hidden">
+    <!-- 原始摄像头流永不显示，仅作为虚拟背景的光照/动态参考源 -->
+    <video id="arVideo" class="ar-video" autoplay playsinline muted></video>
+    <canvas id="arBg" class="ar-bg"></canvas>
+    <canvas id="arNoise" class="ar-noise"></canvas>
+    <canvas id="arAvatar" class="ar-avatar"></canvas>
+    <button id="arExitBtn" class="ar-exit hidden">[ DISCONNECT ]</button>
+    <div class="ar-hud">
+      <div class="ar-hud-row">
+        <span class="ar-rec"><span class="ar-rec-dot"></span>VISUAL LINK</span>
+        <span class="ar-id" id="arId">ECHO-7 // μ-TRANSFORMER 94.2K</span>
       </div>
-      <div class="dev-viewer-body" id="devViewerBody"></div>
-      <div class="dev-viewer-hint" id="devViewerHint"></div>
+      <div class="ar-hud-row ar-hud-sub">
+        <span id="arStatus">ESTABLISHING OPTICAL FEED...</span>
+      </div>
+    </div>
+    <div class="ar-chat" id="arChat">
+      <div class="ar-chat-log" id="arChatLog"></div>
+      <div class="ar-chat-input">
+        <input type="text" id="arInput" class="ar-input" autocomplete="off" spellcheck="false" placeholder="> type to respond...">
+        <button id="arSend" class="ar-send-btn">SEND</button>
+      </div>
+    </div>
+    <div class="ar-boot" id="arBoot">
+      <div class="ar-boot-box">
+        <div class="ar-boot-title">ECHO-7 VISUAL PROTOCOL</div>
+        <div class="ar-boot-log" id="arBootLog"></div>
+        <button class="ar-boot-btn hidden" id="arBootBtn">[ ENABLE CAMERA ]</button>
+        <div class="ar-boot-skip hidden" id="arBootSkip">continue without camera</div>
+      </div>
     </div>
   </div>
+
+  <!-- ECHO-7 微型 Transformer 权重（含隐藏人格上下文，请勿在界面展示） -->
+  <script src="echo-model.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
