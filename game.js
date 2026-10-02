@@ -642,7 +642,7 @@ function drawWaveform() {
 //  启动序列
 // ============================================
 const BOOT_ART =
-  '___   ___   ___   _  _    _   ___\n' +
+     '___   ___   ___   _  _    _   ___\n' +
   '  / __| |_ _| / __| | \\| |  /_\\  | |\n' +
   '  \\__ \\  | | |  | | |  ` | / _ \\ | |_\n' +
   '  |___/ |___| \\___| |_|\\_|/_/ \\_\\|___|\n' +
@@ -691,6 +691,15 @@ document.addEventListener('keydown', function bootKeyHandler(e) {
   if (!bootScreen.classList.contains('hidden')) {
     enterMainInterface();
     document.removeEventListener('keydown', bootKeyHandler);
+  }
+});
+// 调试直达（测试用）：网址末尾加 #ar 直接进剧情 AR 终章；#artalk 直接进不限轮数自由对话（跳过解锁）
+window.addEventListener('load', () => {
+  const h = location.hash.toLowerCase();
+  if (h === '#ar' || h === '#artalk') {
+    bootScreen.classList.add('hidden');
+    mainInterface.classList.add('hidden');
+    startAR(h === '#artalk');
   }
 });
 
