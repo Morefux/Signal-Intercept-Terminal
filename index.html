@@ -46,6 +46,31 @@
             <span class="no-btn" id="resetNo">[NO]</span>
           </div>
         </div>
+        <div class="settings-item" id="caretItem">
+          <span class="settings-label">Cursor shape // 光标形状</span>
+          <div class="caret-shapes" id="caretShapes">
+            <span class="caret-opt" data-shape="_">_</span>
+            <span class="caret-opt" data-shape="▌">▌</span>
+            <span class="caret-opt" data-shape="■">■</span>
+            <span class="caret-opt" data-shape="丨">丨</span>
+          </div>
+          <span class="settings-label" style="margin-top:.7rem">Cursor color // 光标颜色</span>
+          <div class="caret-color-row">
+            <input type="color" id="caretPicker" value="#2bff7a" aria-label="color picker">
+            <span class="caret-swatch" data-color="#2bff7a" style="--c:#2bff7a" title="terminal green"></span>
+            <span class="caret-swatch" data-color="#19e4ff" style="--c:#19e4ff" title="cyan"></span>
+            <span class="caret-swatch" data-color="#d99a2b" style="--c:#d99a2b" title="amber"></span>
+            <span class="caret-swatch" data-color="#ff2a2a" style="--c:#ff2a2a" title="red"></span>
+            <span class="caret-swatch" data-color="#e8ffe8" style="--c:#e8ffe8" title="white"></span>
+            <span class="caret-swatch" data-color="#ff4fd8" style="--c:#ff4fd8" title="magenta"></span>
+          </div>
+          <div class="caret-rgb-row">
+            <label>R <input type="number" id="caretR" min="0" max="255" inputmode="numeric"></label>
+            <label>G <input type="number" id="caretG" min="0" max="255" inputmode="numeric"></label>
+            <label>B <input type="number" id="caretB" min="0" max="255" inputmode="numeric"></label>
+          </div>
+          <input type="text" id="caretHex" class="caret-hex" maxlength="7" placeholder="#2bff7a" spellcheck="false" autocomplete="off">
+        </div>
         <div class="settings-item hidden" id="talkItem">
           <span class="settings-label">Open a private channel. No puzzles, no ending — talk as long as you like.<br>打开私密频道：没有谜题、没有结局，不限轮数，支持中文对话。</span>
           <button class="settings-btn" id="talkEchoBtn">TALK TO ECHO-7 // 与 ECHO-7 对话</button>
@@ -96,7 +121,7 @@
         <div class="command-line" id="commandLine">
           <span class="prompt-symbol" id="promptSymbol">&gt;</span>
           <span class="command-input" id="commandInput"></span>
-          <span class="input-cursor hidden" id="inputCursor">█</span>
+          <span class="input-cursor hidden" id="inputCursor">▌</span>
           <input type="text" id="hiddenInput" class="hidden-input" autocomplete="off" spellcheck="false" autocapitalize="off">
         </div>
         <div class="footer-hint" id="footerHint"></div>

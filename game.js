@@ -461,6 +461,89 @@ function unlockTalk() {
   saveProgress(); // 与进度存档保存在一起（清除进度不会清除独立解锁标记）
   updateTalkLockUI();
 }
+// 光标外观偏好：形状（_ ▌ ■ 丨）与颜色，独立存档，不受清进度影响
+const CARET_SHAPE_KEY = 'signal_v8_caret_shape';
+const CARET_COLOR_KEY = 'signal_v8_caret_color';
+const CARET_SHAPES = ['_', '▌', '■', '丨'];
+let caretShape = '▌';
+let caretColor = '#2bff7a';
+function loadCaretPrefs() {
+  try {
+    const s = localStorage.getItem(CARET_SHAPE_KEY);
+    if (s && CARET_SHAPES.includes(s)) caretShape = s;
+    const c = localStorage.getItem(CARET_COLOR_KEY);
+    if (c && /^#[0-9a-f]{6}$/i.test(c)) caretColor = c.toLowerCase();
+  } catch (e) {}
+}
+function saveCaretPrefs() {
+  try {
+    localStorage.setItem(CARET_SHAPE_KEY, caretShape);
+    localStorage.setItem(CARET_COLOR_KEY, caretColor);
+  } catch (e) {}
+}
+function applyCaretPrefs() {
+  inputCursor.textContent = caretShape;
+  document.documentElement.style.setProperty('--caret-color', caretColor);
+  document.querySelectorAll('.caret-opt').forEach(el => el.classList.toggle('sel', el.dataset.shape === caretShape));
+  document.querySelectorAll('.caret-swatch').forEach(el => el.classList.toggle('sel', el.dataset.color.toLowerCase() === caretColor.toLowerCase()));
+  const picker = document.getElementById('caretPicker');
+  const hex = document.getElementById('caretHex');
+  const rIn = document.getElementById('caretR'), gIn = document.getElementById('caretG'), bIn = document.getElementById('caretB');
+  if (picker) picker.value = caretColor;
+  if (hex) hex.value = caretColor;
+  const n = parseInt(caretColor.slice(1), 16);
+  if (rIn) rIn.value = (n >> 16) & 255;
+  if (gIn) gIn.value = (n >> 8) & 255;
+  if (bIn) bIn.value = n & 255;
+}
+function setCaretColor(c) {
+  c = (c || '').trim().toLowerCase();
+  if (!/^#[0-9a-f]{6}$/.test(c)) return false;
+  caretColor = c;
+  applyCaretPrefs();
+  saveCaretPrefs();
+  return true;
+}
+function initCaretSettings() {
+  loadCaretPrefs();
+  applyCaretPrefs();
+  document.querySelectorAll('.caret-opt').forEach(el => {
+    el.addEventListener('click', () => {
+      caretShape = el.dataset.shape;
+      applyCaretPrefs();
+      saveCaretPrefs();
+    });
+  });
+  document.querySelectorAll('.caret-swatch').forEach(el => {
+    el.addEventListener('click', () => setCaretColor(el.dataset.color));
+  });
+  const picker = document.getElementById('caretPicker');
+  if (picker) picker.addEventListener('input', () => setCaretColor(picker.value));
+  const hex = document.getElementById('caretHex');
+  if (hex) {
+    const commit = () => {
+      let v = hex.value.trim();
+      if (v && v[0] !== '#') v = '#' + v;
+      if (setCaretColor(v)) hex.classList.remove('invalid');
+      else { hex.classList.add('invalid'); setTimeout(() => { hex.value = caretColor; hex.classList.remove('invalid'); }, 900); }
+    };
+    hex.addEventListener('change', commit);
+    hex.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+  }
+  ['caretR', 'caretG', 'caretB'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const r = parseInt(document.getElementById('caretR').value, 10);
+      const g = parseInt(document.getElementById('caretG').value, 10);
+      const b = parseInt(document.getElementById('caretB').value, 10);
+      if ([r, g, b].every(v => Number.isInteger(v) && v >= 0 && v <= 255)) {
+        const h = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+        setCaretColor(h);
+      }
+    });
+  });
+}
 function updateTalkLockUI() {
   // 未解锁时整个选项隐藏，解锁后才出现在设置面板
   const item = document.getElementById('talkItem');
@@ -559,7 +642,7 @@ function drawWaveform() {
 //  启动序列
 // ============================================
 const BOOT_ART =
-  '   ___   ___   ___   _  _    _   ___\n' +
+  '___   ___   ___   _  _    _   ___\n' +
   '  / __| |_ _| / __| | \\| |  /_\\  | |\n' +
   '  \\__ \\  | | |  | | |  ` | / _ \\ | |_\n' +
   '  |___/ |___| \\___| |_|\\_|/_/ \\_\\|___|\n' +
@@ -612,8 +695,9 @@ document.addEventListener('keydown', function bootKeyHandler(e) {
 });
 
 // ---------- 设置面板 ----------
-bootSettingsBtn.addEventListener('click', (e) => { e.stopPropagation(); updateTalkLockUI(); settingsModal.classList.remove('hidden'); });
+bootSettingsBtn.addEventListener('click', (e) => { e.stopPropagation(); updateTalkLockUI(); applyCaretPrefs(); settingsModal.classList.remove('hidden'); });
 updateTalkLockUI(); // 启动时按存档状态初始化对话按钮
+initCaretSettings(); // 加载光标形状/颜色偏好并绑定设置控件
 settingsCloseBtn.addEventListener('click', () => { settingsModal.classList.add('hidden'); resetConfirm.classList.remove('show'); });
 resetProgressBtn.addEventListener('click', () => resetConfirm.classList.add('show'));
 resetNo.addEventListener('click', () => resetConfirm.classList.remove('show'));
@@ -854,12 +938,22 @@ function updateBars(count) {
 }
 
 // ---------- 命令行输入 ----------
+// 把光标元素插到当前插入位置（selectionStart）处，实现跟随光标的终端光标
+function renderCommandText() {
+  let pos = inputBuffer.length;
+  try { if (hiddenInput.selectionStart != null) pos = hiddenInput.selectionStart; } catch (e) {}
+  pos = Math.max(0, Math.min(pos, inputBuffer.length));
+  commandInput.textContent = '';
+  commandInput.appendChild(document.createTextNode(inputBuffer.slice(0, pos)));
+  commandInput.appendChild(inputCursor);
+  commandInput.appendChild(document.createTextNode(inputBuffer.slice(pos)));
+}
 function activateInput() {
   inputActive = true;
   inputBuffer = '';
   hiddenInput.value = '';
-  commandInput.textContent = '';
   inputCursor.classList.remove('hidden');
+  renderCommandText();
   commandLine.classList.add('active');
   footerHint.textContent = footerHint.textContent || (isTouchDevice ? 'Tap here to type' : 'Type your answer and press Enter');
   if (!isTouchDevice) setTimeout(() => hiddenInput.focus(), 50);
@@ -870,12 +964,15 @@ function deactivateInput() {
   commandLine.classList.remove('active');
   hiddenInput.blur();
 }
-commandLine.addEventListener('click', () => { if (inputActive) hiddenInput.focus(); });
-mainInterface.addEventListener('click', () => { if (inputActive) hiddenInput.focus(); });
+commandLine.addEventListener('click', () => { if (inputActive) { hiddenInput.focus(); setTimeout(renderCommandText, 0); } });
+mainInterface.addEventListener('click', () => { if (inputActive) { hiddenInput.focus(); setTimeout(renderCommandText, 0); } });
 hiddenInput.addEventListener('input', () => {
   inputBuffer = hiddenInput.value;
-  commandInput.textContent = inputBuffer;
+  renderCommandText();
 });
+hiddenInput.addEventListener('keyup', renderCommandText);
+hiddenInput.addEventListener('click', renderCommandText);
+hiddenInput.addEventListener('focus', renderCommandText);
 hiddenInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); submitInput(); }
 });
