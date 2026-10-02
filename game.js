@@ -1910,12 +1910,13 @@ function enableCamera(useCamera) {
   }
 }
 
-function beginARScene() {
+async function beginARScene() {
   sizeARCanvases();
   initAvatarParticles();
   bgPrev = null; bgMotion = 0; bgLuma = 0;
   if (window.EchoHead && !echoHead3d) {
-    try { echoHead3d = window.EchoHead.create(arHead3d); } catch (e) { echoHead3d = null; }
+    try { await window.EchoHead.ready; echoHead3d = window.EchoHead.create(arHead3d); }
+    catch (e) { console.warn('echo head load failed', e); echoHead3d = null; }
   }
   if (echoHead3d) { echoHead3d.setMood('neutral'); echoHead3d.setTalk(0); echoHead3d.resize(); }
   arLoop();
@@ -2490,35 +2491,16 @@ const ECHO_F32_BUF = new ArrayBuffer(4);
 const ECHO_F32_U32 = new Uint32Array(ECHO_F32_BUF);
 const ECHO_F32_F32 = new Float32Array(ECHO_F32_BUF);
 function ECHO_F32_CVT(bits) { ECHO_F32_U32[0] = bits; return ECHO_F32_F32[0]; }
-function echoLoadNet() {
+async function echoLoadNet() {
   if (echoNet) return echoNet;
   const M = window.ECHO_MODEL;
   if (!M) return null;
-  const W = {};
-  if (M.weightsF16) {
-    // Float16/base64 二进制权重（v8），手动 f16→f32，兼容所有浏览器
-    for (const k in M.weightsF16) {
-      const bin = atob(M.weightsF16[k]);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const u16 = new Uint16Array(bytes.buffer);
-      const f32 = new Float32Array(u16.length);
-      for (let i = 0; i < u16.length; i++) {
-        const h = u16[i];
-        const sign = (h & 0x8000) << 16;
-        const e = (h & 0x7c00) >> 10;
-        const m = h & 0x03ff;
-        let bits;
-        if (e === 0) bits = m ? (sign | ((127 - 14) << 23) | (m << 13)) : sign; // 次正规 / 正负零
-        else if (e === 0x1f) bits = sign | 0x7f800000 | (m ? 0x7fffff : 0);
-        else bits = sign | ((e - 15 + 127) << 23) | (m << 13);
-        f32[i] = ECHO_F32_CVT(bits);
-      }
-      W[k] = f32;
-    }
-  } else {
-    for (const k in M.weights) W[k] = new Float32Array(M.weights[k]);
+  if (!M.W) {
+    // Pages 版：权重在 echo-model.bin（Float16 原始二进制），首次使用时异步加载解码
+    try { await M.ready; } catch (e) { console.warn('echo model load failed', e); return null; }
   }
+  if (!M.W) return null;
+  const W = M.W;
   const stoi = {};
   M.vocab.forEach((t, i) => { stoi[t] = i; });
   const personaIds = echoTokenize(M.persona).map(t => (stoi[t] !== undefined ? stoi[t] : 1));
@@ -2791,8 +2773,8 @@ function echoCutTwo(text, zh) {
   }
   return '';
 }
-function echoModelAnswer(raw, opts) {
-  const net = echoLoadNet();
+async function echoModelAnswer(raw, opts) {
+  const net = await echoLoadNet();
   if (!net) return null;
   const wantZh = ECHO_CJK_RE.test(raw);
   const maxNew = (opts && opts.maxNew) || 36;
@@ -2827,7 +2809,7 @@ function echoModelAnswer(raw, opts) {
       if (wantZh) {
         if (r < 0.5 || latWords > 1) continue;          // 答成英文 / 中英混杂（允许 echo 等专名）
         score = 0.3 * echoZhScore(text) + 0.7 * echoZhSingleSrc(text);
-        if (cjkN >= 8 && score < 0.6) continue;         // 多句拼接的无逻辑句
+        if (cjkN >= 5 && score < 0.6) continue;         // 短乱句（如“好我而且恒温”）与拼接句都拦
       } else {
         if (r > 0.12 || cjkN > 1) continue;             // 英文提问却夹中文
         score = echoEnSingleSrc(text);
@@ -2854,8 +2836,8 @@ function echoModelAnswer(raw, opts) {
   return text;
 }
 // 每次打开自由对话时实时生成开场白（按界面语言）
-function echoOpening(cb) {
-  const net = echoLoadNet();
+async function echoOpening(cb) {
+  const net = await echoLoadNet();
   if (!net) { cb(null); return; }
   setTimeout(() => {
     try {
@@ -2927,7 +2909,7 @@ function echoOpening(cb) {
     } catch (e) { cb(null); }
   }, 60);
 }
-function echoRespond(raw) {
+async function echoRespond(raw) {
   const s = raw.toLowerCase().trim();
   const sn = normalize(raw);
   arTurn++;
@@ -2951,8 +2933,8 @@ function echoRespond(raw) {
   // 其余全部交给本地 Transformer：自由对话略自由，剧情模式更稳定；
   // 两者都经过多候选连贯度验收，不合格自动重采或走兜底
   const answer = arFreeChat
-    ? echoModelAnswer(raw, { temp: 0.58, topK: 10, maxNew: 44 })
-    : echoModelAnswer(raw, { temp: 0.5, topK: 9, maxNew: 34 });
+    ? await echoModelAnswer(raw, { temp: 0.58, topK: 10, maxNew: 44 })
+    : await echoModelAnswer(raw, { temp: 0.5, topK: 9, maxNew: 34 });
   if (answer) return { text: answer };
   const fb = CJK_RE.test(raw) ? ECHO_FALLBACK_ZH : ECHO_FALLBACK;
   return { text: fb[Math.floor(Math.random() * fb.length)], glitch: true };
@@ -2965,8 +2947,8 @@ function sendChat() {
   arInput.value = '';
   arInput.disabled = true; arSend.disabled = true;
   arStatus.textContent = 'ECHO-7 IS TYPING...';
-  setTimeout(() => {
-    const res = echoRespond(raw); // 本地 Transformer 推理（模型越大耗时越长，UI 已先显示 typing）
+  setTimeout(async () => {
+    const res = await echoRespond(raw); // 本地 Transformer 推理（模型越大耗时越长，UI 已先显示 typing）
     const txt = res.finale ? res.first : res.text;
     arStatus.textContent = arFreeChat ? 'PRIVATE CHANNEL ACTIVE' : 'OPTICAL LINK ACTIVE';
     appendEchoBubble(txt, false, () => {

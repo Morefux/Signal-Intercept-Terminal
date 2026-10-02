@@ -1,7 +1,56 @@
-// ECHO-7 3D head runtime (classic script, depends on window.THREE + window.ECHO_HEAD_MODEL)
+// ECHO-7 3D head runtime (classic script, depends on window.THREE；模型为同目录 echo-head.glb)
 (function(){
 'use strict';
 const THREE = window.THREE;
+
+// ---- 极简 glTF 2.0 GLB 解析（只覆盖本项目用到的 POSITION/TEXCOORD/indices/morph target/贴图）----
+async function parseHeadGLB(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('echo-head.glb HTTP ' + resp.status);
+  const ab = await resp.arrayBuffer();
+  const dv = new DataView(ab), u8 = new Uint8Array(ab);
+  if (u8[0] !== 0x67 || u8[1] !== 0x6C || u8[2] !== 0x54 || u8[3] !== 0x46) throw new Error('bad glb magic');
+  let off = 12, json = null, bin = null;
+  while (off + 8 <= ab.byteLength) {
+    const len = dv.getUint32(off, true), type = dv.getUint32(off + 4, true), start = off + 8;
+    if (type === 0x4E4F534A) json = JSON.parse(new TextDecoder().decode(new Uint8Array(ab, start, len)));
+    else if (type === 0x004E4942) bin = ab.slice(start, start + len);
+    off = start + len;
+  }
+  if (!json || !bin) throw new Error('bad glb chunks');
+  const bvs = json.bufferViews, accs = json.accessors;
+  const CT = { 5120: Int8Array, 5121: Uint8Array, 5122: Int16Array, 5123: Uint16Array, 5125: Uint32Array, 5126: Float32Array };
+  const NC = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4 };
+  function accData(ai) {
+    const a = accs[ai], bv = bvs[a.bufferView];
+    const Ctor = CT[a.componentType];
+    const base = (bv.byteOffset || 0) + (a.byteOffset || 0);
+    return new Ctor(bin, base, a.count * NC[a.type]);
+  }
+  async function imgUrl(ii) {
+    const im = json.images[ii], bv = bvs[im.bufferView];
+    const bytes = new Uint8Array(bin.slice(bv.byteOffset, bv.byteOffset + bv.byteLength));
+    return URL.createObjectURL(new Blob([bytes], { type: im.mimeType || 'image/png' }));
+  }
+  const matTex = mi => json.materials[mi].pbrMetallicRoughness.baseColorTexture.index;
+  const texSkin = await imgUrl(matTex(0));
+  const texHair = await imgUrl(matTex(1));
+  const mesh = json.meshes[0];
+  const groups = mesh.primitives.map(prim => ({
+    textured: prim.material === 1,
+    position: new Float32Array(accData(prim.attributes.POSITION)),
+    uv: new Float32Array(accData(prim.attributes.TEXCOORD_0)),
+    index: new Uint32Array(accData(prim.indices)),
+    morph: (prim.targets || []).map(t => new Float32Array(accData(t.POSITION)))
+  }));
+  const names = (mesh.extras && mesh.extras.targetNames) || (json.extras && json.extras.morphNames) || [];
+  return {
+    scale: json.extras.scale, fmin: json.extras.fmin, fmax: json.extras.fmax, anchors: json.extras.anchors,
+    morphNames: names, groups, tex: { skin: texSkin, hair: texHair }
+  };
+}
+let headModel = null;
+const headReady = parseHeadGLB('echo-head.glb').then(m => { headModel = m; return m; });
 
 const MOODS = {
   neutral: { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.7, jaw:0, color:0xff2a2a },
@@ -11,8 +60,8 @@ const MOODS = {
   glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.8, jaw:0.05, color:0x66ffcc }
 };
 
-function EchoHead(canvas){
-  const M = window.ECHO_HEAD_MODEL;
+function EchoHead(canvas, M){
+  M = M || headModel;
   const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -58,12 +107,12 @@ function EchoHead(canvas){
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(g.position,3));
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(g.uv,2));
-    geo.setIndex(g.index); geo.computeVertexNormals();
+    geo.setIndex(new THREE.Uint32BufferAttribute(g.index, 1)); geo.computeVertexNormals();
     let mat;
     if(g.textured){
       const map = loader.load(M.tex.hair); map.colorSpace = THREE.SRGBColorSpace;
-      const alphaMap = loader.load(M.tex.alpha);
-      mat = new THREE.MeshStandardMaterial({map, alphaMap, transparent:true, alphaTest:0.22, side:THREE.DoubleSide, roughness:0.9, metalness:0, color:0xb8bcc4});
+      // alpha 已烘进贴图 alpha 通道（glTF MASK）
+      mat = new THREE.MeshStandardMaterial({map, alphaTest:0.22, side:THREE.DoubleSide, roughness:0.9, metalness:0});
     } else {
       const map = loader.load(M.tex.skin); map.colorSpace = THREE.SRGBColorSpace;
       mat = new THREE.MeshStandardMaterial({map, roughness:0.82, metalness:0, side:THREE.DoubleSide});
@@ -74,7 +123,7 @@ function EchoHead(canvas){
     head.add(mesh);
   }
   faceBase = new Float32Array(faceMesh.geometry.attributes.position.array);
-  const morphByName = {}; M.morphs.forEach(m=>morphByName[m.name]=new Float32Array(m.d));
+  const morphByName = {}; M.morphNames.forEach((name,i)=>morphByName[name]=new Float32Array(M.groups[0].morph[i]));
 
   // ---- eyes ----
   const eyes = [];
@@ -201,5 +250,5 @@ function EchoHead(canvas){
     dispose(){ running=false; window.removeEventListener('resize',resize); renderer.dispose(); } };
 }
 
-window.EchoHead = { create: c=>EchoHead(c), MOODS };
+window.EchoHead = { ready: headReady, create: c=>EchoHead(c), MOODS };
 })();
