@@ -642,7 +642,7 @@ function drawWaveform() {
 //  启动序列
 // ============================================
 const BOOT_ART =
-  '   ___   ___   ___   _  _    _   ___\n' +
+  '___   ___   ___   _  _    _   ___\n' +
   '  / __| |_ _| / __| | \\| |  /_\\  | |\n' +
   '  \\__ \\  | | |  | | |  ` | / _ \\ | |_\n' +
   '  |___/ |___| \\___| |_|\\_|/_/ \\_\\|___|\n' +
@@ -693,13 +693,13 @@ document.addEventListener('keydown', function bootKeyHandler(e) {
     document.removeEventListener('keydown', bootKeyHandler);
   }
 });
-// 调试直达（测试用）：网址末尾加 #ar 直接进剧情 AR 终章；#artalk 直接进不限轮数自由对话（跳过解锁）
+// 调试直达（测试用）：#ar 剧情 AR 终章；#artalk 不限轮数自由对话；#ar2d / #artalk2d 强制 2D 兜底头像
 window.addEventListener('load', () => {
   const h = location.hash.toLowerCase();
-  if (h === '#ar' || h === '#artalk') {
+  if (h === '#ar' || h === '#artalk' || h === '#ar2d' || h === '#artalk2d') {
     bootScreen.classList.add('hidden');
     mainInterface.classList.add('hidden');
-    startAR(h === '#artalk');
+    startAR(h === '#artalk' || h === '#artalk2d');
   }
 });
 
@@ -2017,13 +2017,130 @@ function enableCamera(useCamera) {
   }
 }
 
+// 2D 兜底头像：GLB 加载失败或设备不支持 WebGL2 时，用 Canvas2D 画一个会眨眼/说话/变表情的 ECHO-7，保证画面不全黑
+function createFallbackHead2D(canvas) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('2d context unavailable');
+  const BASE = (window.EchoHead && window.EchoHead.MOODS) || {
+    neutral: { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.8, jaw:0, color:0xff2a2a },
+    tender:  { smile:0.55, sad:0, anger:0, brow:0.12, lids:0.18, glow:1.0, jaw:0, color:0xff5a6e },
+    sad:     { smile:0, sad:0.75, anger:0, brow:-0.1, lids:0.45, glow:0.5, jaw:0, color:0xcc3344 },
+    hungry:  { smile:0.05, sad:0, anger:0.7, brow:-0.25, lids:0.1, glow:1.5, jaw:0.1, color:0xff1515 },
+    glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.8, jaw:0.05, color:0x66ffcc }
+  };
+  const st = { mood:'neutral', talk:0, lookX:0, lookY:0, glitch:0, jawOverride:null,
+    cur:Object.assign({},BASE.neutral), blink:0, blinkTimer:1.5+Math.random()*2.5, talkPhase:0 };
+  let W=0,H=0,dpr=1,running=true;
+  function resize(){
+    dpr=Math.min(devicePixelRatio||1,2);
+    W=canvas.clientWidth||300; H=canvas.clientHeight||300;
+    canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+  const hex=c=>'#'+(c|0).toString(16).padStart(6,'0');
+  let last=performance.now();
+  function frame(now){
+    if(!running) return;
+    requestAnimationFrame(frame);
+    const dt=Math.min(0.05,(now-last)/1000); last=now;
+    const t=now/1000;
+    const tgt=BASE[st.mood]||BASE.neutral;
+    const k=1-Math.pow(0.001,dt);
+    for(const key in tgt) st.cur[key]+=(tgt[key]-st.cur[key])*k;
+    st.glitch*=Math.pow(0.02,dt);
+    st.blinkTimer-=dt;
+    let blinkT=st.cur.lids;
+    if(st.blinkTimer<0){ blinkT=1; if(st.blinkTimer<-0.16) st.blinkTimer=2+Math.random()*3.5; }
+    st.blink+=(blinkT-st.blink)*(1-Math.pow(0.0001,dt));
+    st.talkPhase+=dt*(6+st.talk*8);
+    const syll=st.talk>0.02?(0.5+0.5*Math.sin(st.talkPhase))*(0.6+0.4*Math.sin(st.talkPhase*2.7)):0;
+    const jaw=st.jawOverride!==null?st.jawOverride:Math.max(st.cur.jaw,syll*0.9*st.talk);
+    const eyeOpen=(1-st.blink)*(1-0.6*st.cur.lids);
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2, cy=H*0.46, s=Math.min(W,H)*0.34;
+    const col=hex(st.cur.color);
+    ctx.save();
+    if(st.glitch>0.02){
+      const slices=Math.floor(st.glitch*6);
+      for(let i=0;i<slices;i++){
+        const y=Math.random()*H, h=4+Math.random()*14;
+        ctx.fillStyle=Math.random()<0.5?'rgba(80,255,190,'+(0.25*st.glitch)+')':'rgba(255,40,60,'+(0.25*st.glitch)+')';
+        ctx.fillRect(0,y,W,h);
+      }
+    }
+    // 兜帽 / 阴影
+    ctx.fillStyle='#0b0608';
+    ctx.beginPath();
+    ctx.moveTo(cx-s*1.25,cy+s*1.5);
+    ctx.quadraticCurveTo(cx-s*1.15,cy-s*1.25,cx,cy-s*1.12);
+    ctx.quadraticCurveTo(cx+s*1.15,cy-s*1.25,cx+s*1.25,cy+s*1.5);
+    ctx.closePath(); ctx.fill();
+    // 脖子
+    ctx.fillStyle='rgba(160,130,120,0.9)';
+    ctx.fillRect(cx-s*0.22,cy+s*0.82,s*0.44,s*0.4);
+    // 脸
+    ctx.fillStyle='rgba(201,173,160,0.92)';
+    ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.shadowColor=col; ctx.shadowBlur=14*st.cur.glow;
+    ctx.beginPath(); ctx.ellipse(cx,cy,s*0.72,s*0.98,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur=0;
+    // 眼睛
+    const ex=s*0.30, ey=cy-s*0.18+st.lookY*s*0.05, lx=st.lookX*s*0.05;
+    for(const side of [-1,1]){
+      const exx=cx+side*ex+lx;
+      ctx.save();
+      ctx.beginPath(); ctx.ellipse(exx,ey,s*0.105,s*0.105*Math.max(0.06,eyeOpen),0,0,Math.PI*2); ctx.clip();
+      ctx.fillStyle='#0b0507'; ctx.fillRect(exx-s*0.12,ey-s*0.14,s*0.24,s*0.28);
+      ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=12*st.cur.glow;
+      ctx.beginPath(); ctx.arc(exx,ey,s*0.052*Math.max(0.2,eyeOpen),0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0; ctx.restore();
+      // 眉
+      const ang=side*(0.12+st.cur.anger*0.35-st.cur.sad*0.25);
+      const by=ey-s*0.22+st.cur.anger*s*0.05-st.cur.sad*side*s*0.05-st.cur.brow*s*0.04;
+      ctx.strokeStyle='#2a1d18'; ctx.lineWidth=s*0.045; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(exx-side*s*0.11,by); ctx.lineTo(exx+side*s*0.11,by-Math.sin(ang)*s*0.12); ctx.stroke();
+    }
+    // 鼻
+    ctx.strokeStyle='rgba(90,60,55,0.6)'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(cx,cy+s*0.02); ctx.quadraticCurveTo(cx-s*0.03,cy+s*0.22,cx-s*0.08,cy+s*0.26); ctx.stroke();
+    // 嘴
+    const my=cy+s*0.46, open=Math.max(0.001,jaw)*s*0.5;
+    ctx.fillStyle='#1a0506';
+    ctx.beginPath(); ctx.ellipse(cx,my,s*(0.16+st.cur.smile*0.05),open+1,0,0,Math.PI*2); ctx.fill();
+    if(open>2){ ctx.fillStyle='rgba(184,176,160,0.9)'; ctx.fillRect(cx-s*0.1,my-open*0.9,s*0.2,2); }
+    if(st.glitch>0.02){
+      ctx.fillStyle='rgba(120,255,200,'+(0.35*st.glitch)+')';
+      for(let i=0;i<3;i++){ ctx.fillRect(0,Math.random()*H,W,2); }
+    }
+    ctx.restore();
+    void t;
+  }
+  requestAnimationFrame(frame);
+  return {
+    setMood(m){ if(BASE[m]) st.mood=m; },
+    setTalk(v){ st.talk=Math.max(0,Math.min(1,v)); },
+    setJaw(v){ st.jawOverride=v; },
+    setLook(x,y){ st.lookX=x; st.lookY=y; },
+    pulseGlitch(v){ st.glitch=Math.max(st.glitch,v); },
+    resize,
+    dispose(){ running=false; }
+  };
+}
+
 async function beginARScene() {
   sizeARCanvases();
   initAvatarParticles();
   bgPrev = null; bgMotion = 0; bgLuma = 0;
-  if (window.EchoHead && !echoHead3d) {
+  const force2d = /2d/i.test(location.hash || '');
+  if (window.EchoHead && !echoHead3d && !force2d) {
     try { await window.EchoHead.ready; echoHead3d = window.EchoHead.create(arHead3d); }
-    catch (e) { console.warn('echo head load failed', e); echoHead3d = null; }
+    catch (e) {
+      console.warn('echo 3d head unavailable, using 2D fallback', e);
+      echoHead3d = null;
+    }
+  }
+  if (!echoHead3d) {
+    try { echoHead3d = createFallbackHead2D(arHead3d); } catch (e) {}
   }
   if (echoHead3d) { echoHead3d.setMood('neutral'); echoHead3d.setTalk(0); echoHead3d.resize(); }
   arLoop();
@@ -2808,6 +2925,7 @@ function echoSampleFrom(net, state0, opts) {
   const state = echoCloneState(net, state0);
   const { cache, T } = state;
   const out = [];
+  let sents = 0; // 已生成的完整句数：满两句即收尾，显著缩短手机端推理时间
   let logitsCur = state.logits;
   for (let n = 0; n < maxNew; n++) {
     const L = logitsCur.slice();
@@ -2846,6 +2964,9 @@ function echoSampleFrom(net, state0, opts) {
       if (tok === 4) break;
     }
     out.push(tok);
+    const vt = net.vocab[tok];
+    if (/^[.!?]$/.test(vt) || /^[。！？…]$/.test(vt)) sents++;
+    if (n >= 9 && sents >= 2) break; // 两句完整句即停（echoCutTwo 本来也只保留前两句）
     if (T + out.length - 1 >= net.cfg.Tmax) break;
     logitsCur = echoStep(net, cache, tok, T + out.length - 1);
   }
@@ -2895,7 +3016,7 @@ async function echoModelAnswer(raw, opts) {
   // 必须能落在某一条真实语料上（单源覆盖率），从合格候选里加权随机挑一条
   const state = echoPrefill(net, promptIds);
   const passed = [];
-  const K = 4;
+  const K = 2; // 候选数 4→2：配合高分即停，手机端回复速度提升约 2~4 倍
   for (let attempt = 0; attempt < K; attempt++) {
     try {
       const out = echoSampleFrom(net, state, {
@@ -2923,7 +3044,10 @@ async function echoModelAnswer(raw, opts) {
         if ((text.match(/[a-z']+/gi) || []).length >= 6 && score < 0.6) continue;
       }
       const dup = echoPrefixDup(out); // 与最近回答开头撞车：不硬弃（宁可重复正确答案也不放行乱句），降权
-      if (!passed.some(p => p.text === text)) passed.push({ out, text, score, dup });
+      if (!passed.some(p => p.text === text)) {
+        passed.push({ out, text, score, dup });
+        if (!dup && score >= 0.82) break; // 首个高质量候选直接采用，省去后续候选的推理时间
+      }
     } catch (e) {
       console.warn('echo inference failed', e);
     }

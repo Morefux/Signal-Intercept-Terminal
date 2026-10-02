@@ -60,9 +60,22 @@ const MOODS = {
   glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.8, jaw:0.05, color:0x66ffcc }
 };
 
+// 探测 WebGL2（three r169 仅支持 WebGL2；不支持时直接抛错，交给游戏内 2D 兜底头像）
+function webgl2Available(){
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl2') || c.getContext('experimental-webgl2'));
+  } catch (e) { return false; }
+}
+
 function EchoHead(canvas, M){
   M = M || headModel;
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  if (!webgl2Available()) throw new Error('WebGL2 unavailable — use 2D fallback');
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  } catch (e) { throw new Error('WebGL renderer creation failed — use 2D fallback'); }
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
   renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
