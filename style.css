@@ -1,5 +1,5 @@
 /* ========================================
-   SIGNAL // ECHO-7 TERMINAL v4.0
+   SIGNAL // ECHO-7 TERMINAL v8.0
    ======================================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -579,6 +579,13 @@ body.corrupted .msg-error { animation: corruptJitter 3.5s infinite; }
 .ar-bg { z-index: 0; background: #050101; }
 .ar-noise { mix-blend-mode: screen; opacity: 0.5; z-index: 1; }
 .ar-avatar { z-index: 2; }
+.ar-head3d {
+  position: absolute; z-index: 3; pointer-events: none;
+  left: 50%; top: 38%;
+  width: min(46vmin, 82vw); height: min(46vmin, 82vw);
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 18px rgba(255,30,30,0.25));
+}
 .ar-exit {
   position: absolute; top: 64px; right: 14px; z-index: 8;
   background: rgba(20,0,0,0.7); border: 1px solid rgba(255,60,60,0.6);

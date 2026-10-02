@@ -47,9 +47,9 @@
             <span class="no-btn" id="resetNo">[NO]</span>
           </div>
         </div>
-        <div class="settings-item">
-          <span class="settings-label">Open a private channel. No puzzles, no ending — talk as long as you like.</span>
-          <button class="settings-btn" id="talkEchoBtn">TALK TO ECHO-7</button>
+        <div class="settings-item hidden" id="talkItem">
+          <span class="settings-label">Open a private channel. No puzzles, no ending — talk as long as you like.<br>打开私密频道：没有谜题、没有结局，不限轮数，支持中文对话。</span>
+          <button class="settings-btn" id="talkEchoBtn">TALK TO ECHO-7 // 与 ECHO-7 对话</button>
         </div>
         <button class="settings-close" id="settingsCloseBtn">CLOSE</button>
       </div>
@@ -152,6 +152,7 @@
     <canvas id="arBg" class="ar-bg"></canvas>
     <canvas id="arNoise" class="ar-noise"></canvas>
     <canvas id="arAvatar" class="ar-avatar"></canvas>
+    <canvas id="arHead3d" class="ar-head3d"></canvas>
     <button id="arExitBtn" class="ar-exit hidden">[ DISCONNECT ]</button>
     <div class="ar-hud">
       <div class="ar-hud-row">
@@ -165,7 +166,7 @@
     <div class="ar-chat" id="arChat">
       <div class="ar-chat-log" id="arChatLog"></div>
       <div class="ar-chat-input">
-        <input type="text" id="arInput" class="ar-input" autocomplete="off" spellcheck="false" placeholder="> type to respond...">
+        <input type="text" id="arInput" class="ar-input" autocomplete="off" spellcheck="false" placeholder="> 输入消息 / type to respond...">
         <button id="arSend" class="ar-send-btn">SEND</button>
       </div>
     </div>
@@ -180,6 +181,9 @@
   </div>
 
   <!-- ECHO-7 微型 Transformer 权重（含隐藏人格上下文，请勿在界面展示） -->
+  <script src="three.lib.js"></script>
+  <script src="echo-head-model.js"></script>
+  <script src="echo-head.js"></script>
   <script src="echo-model.js"></script>
   <script src="game.js"></script>
 </body>
