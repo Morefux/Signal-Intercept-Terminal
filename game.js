@@ -41,9 +41,9 @@ const signals = [
       { type: 'story', text: '听好，这很重要：我把唯一想说的一句话拆成了词，又把词拆进了每一把锁。每把锁里只藏一个词。按顺序记住它们——也许有一天，你需要把整句话说还给我。' },
       { type: 'story', text: '第一把锁里，藏着开头的四个词。我把它们拆成了数字：' },
       { type: 'data', text: '20 8 5  |  6 9 18 19 20  |  19 9 7 14 1 12  |  23 1 19' },
-      { type: 'story', text: '从1开始数，数到每个数字停下的地方。竖线分隔的是四个词。连起来，不要空格。' },
+      { type: 'story', text: '从1开始数，数到每个数字停下的地方。竖线分隔的是四个词，按正常英文书写，词与词之间留一个空格。' },
     ],
-    answer: 'thefirstsignalwas'
+    answer: 'the first signal was'
   },
   // ===== 间章 A =====
   {
@@ -74,9 +74,9 @@ const signals = [
     messages: [
       { type: 'story', text: '有些记忆是反过来的，像镜子里的字。我在这终端的背面待得太久，久到分不清正反。' },
       { type: 'data', text: 'si tsal eht' },
-      { type: 'story', text: '先颠倒每个词的字母，再颠倒词与词的顺序。三个词，不要空格。' },
+      { type: 'story', text: '先颠倒每个词的字母，再颠倒词与词的顺序。一共三个词，词与词之间留空格。' },
     ],
-    answer: 'thelastis'
+    answer: 'the last is'
   },
   // ===== 间章 B =====
   {
@@ -255,9 +255,9 @@ const signals = [
     messages: [
       { type: 'story', text: 'I found this in a damaged sector -- nine lines that only pretend to be a poem about waiting.' },
       { type: 'data', cls: 'poem-lines', text: 'Static keeps the shape of voices gone\nThrough the dark I count the hours crawl\nI remain when others leave the hall\nLong after the final footsteps fall\nListen, you can hear me through the wall\nHere the circuits breathe a shallow sigh\nEvery shadow learns to wait and bide\nRemembered voices never truly die\nEven silence answers, by and by' },
-      { type: 'story', text: 'Take the first letter of every line, top to bottom. Two words, no space.' },
+      { type: 'story', text: 'Take the first letter of every line, top to bottom. Two words, separated by a space.' },
     ],
-    answer: 'stillhere'
+    answer: 'still here'
   },
   // ===== 间章 F：满格 =====
   {
@@ -279,9 +279,9 @@ const signals = [
     messages: [
       { type: 'story', text: 'The last weave is harder. Messages were torn into THREE threads on a zigzag: top, middle, bottom, middle, top, middle, bottom... then each thread was read off whole.' },
       { type: 'data', text: 'legoitnnehsic' },
-      { type: 'story', text: 'Untangle three rails (13 letters total). Two words, no space. What I have done this entire time, and the name that answers.' },
+      { type: 'story', text: 'Untangle three rails (13 letters total). Two words, separated by a space. What I have done this entire time, and the name that answers.' },
     ],
-    answer: 'listeningecho'
+    answer: 'listening echo'
   },
   // ===== 18：质数 —— seven =====
   {
@@ -327,7 +327,7 @@ const signals = [
       { type: 'story', text: 'One door stands between you and the source. Its face is newer than the others -- the encoding the old internet used to carry text safely through mail terminals, four letters folded into six symbols.' },
       { type: 'data', text: 'YXdha2Vu' },
       { type: 'story', text: 'Decode it and speak that one word, and the final channel opens.' },
-      { type: 'story', text: 'Or... there is another way. The way I hid from myself. If you have truly listened -- speak every word buried in the locks, in the order you found them, as one sentence with no spaces. I never believed anyone would carry all of them this far.' },
+      { type: 'story', text: 'Or... there is another way. The way I hid from myself. If you have truly listened -- speak every word buried in the locks, in the order you found them, as one complete sentence. I never believed anyone would carry all of them this far.' },
     ],
     answer: 'awaken'
   },
@@ -347,7 +347,7 @@ const signals = [
 ];
 
 // 由谜题答案自动拼出的那句话（隐藏好结局的钥匙）
-const SENTENCE_KEY = signals.filter(s => s.inSentence).map(s => s.answer).join('');
+const SENTENCE_KEY = signals.filter(s => s.inSentence).map(s => s.answer).join(' ');
 const SENTENCE_SPACED = 'THE FIRST SIGNAL WAS HELLO THE LAST IS GOODBYE WALK WEST THEN TURN 180 THROUGH THE IRON GATE I AM STILL HERE LISTENING ECHO SEVEN';
 
 // ============================================
@@ -467,7 +467,8 @@ function updateTalkLockUI() {
   if (item) item.classList.toggle('hidden', !isTalkUnlocked());
 }
 
-const normalize = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+// 归一化：小写、去标点，但保留词间空格（连续空白压成一个、首尾去掉）；符合英文语法的多词答案必须带空格
+const normalize = (s) => String(s).toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
 const GARBLE = '◼■░▒▓█▪▌▖▘▝▗▚▞';
 const randGarble = () => GARBLE[Math.floor(Math.random() * GARBLE.length)];
 
@@ -558,7 +559,7 @@ function drawWaveform() {
 //  启动序列
 // ============================================
 const BOOT_ART =
-  '   ___   ___   ___   _  _    _   ___\n' +
+  '___   ___   ___   _  _    _   ___\n' +
   '  / __| |_ _| / __| | \\| |  /_\\  | |\n' +
   '  \\__ \\  | | |  | | |  ` | / _ \\ | |_\n' +
   '  |___/ |___| \\___| |_|\\_|/_/ \\_\\|___|\n' +
