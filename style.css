@@ -1,6 +1,23 @@
 /* ========================================
    SIGNAL // ECHO-7 TERMINAL v8.0
    ======================================== */
+/* 本地字体（latin 子集 woff2），离线/国内网络也能保持数码管与哥特标题效果；中文走系统等宽回退 */
+@font-face {
+  font-family: 'VT323'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('fonts/vt323-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Share Tech Mono'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('fonts/share-tech-mono-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel Decorative'; font-style: normal; font-weight: 700;
+  font-display: swap; src: url('fonts/cinzel-decorative-700-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel Decorative'; font-style: normal; font-weight: 900;
+  font-display: swap; src: url('fonts/cinzel-decorative-900-latin.woff2') format('woff2');
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
   --bg: #030403;
