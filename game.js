@@ -2481,10 +2481,10 @@ function pickEchoVoices() {
   const voices = speechSynthesis.getVoices();
   const female = /female|samantha|victoria|karen|moira|tessa|serena|susan|zira|catherine|emma|amy|xiaoxiao|xiaoyi|xiaohan|xiaomeng|xiaomo|xiaorui|xiaoxuan|xiaoyan|huihui|tingting|female|女/i;
   const en = voices.filter(v => /^en/i.test(v.lang));
-  const enMale = en.filter(v => /google uk english male|(^|[^a-z])daniel([^a-z]|$)|rishi|oliver|thomas|arthur|george|ryan|fred|david|mark|alex|male/i.test(v.name) && !female.test(v.name));
+  const enMale = en.filter(v => /google uk english male|google us english male|(^|[^a-z])daniel([^a-z]|$)|rishi|oliver|thomas|arthur|george|matthew|brian|ryan|fred|david|mark|alex|eric|male/i.test(v.name) && !female.test(v.name));
   echoVoiceEn = enMale[0] || en.find(v => /^en(-|_)GB/i.test(v.lang) && !female.test(v.name)) || en.find(v => !female.test(v.name)) || en[0] || null;
   const zh = voices.filter(v => /^zh/i.test(v.lang));
-  const zhMale = zh.filter(v => /yunjian|yunyang|yunfeng|yunye|kangkang|male|男/i.test(v.name) && !female.test(v.name));
+  const zhMale = zh.filter(v => /yunjian|yunyang|yunfeng|yunye|yunze|yunxi|yunhao|kangkang|liang|male|男/i.test(v.name) && !female.test(v.name));
   echoVoiceZh = zhMale[0] || zh.find(v => /CN|cmn/i.test(v.lang) && !female.test(v.name)) || zh.find(v => !female.test(v.name)) || zh[0] || null;
 }
 if (window.speechSynthesis) {
@@ -2501,10 +2501,10 @@ function speak(text) {
     const u = new SpeechSynthesisUtterance(text);
     if (isZh) {
       if (echoVoiceZh) u.voice = echoVoiceZh;
-      u.lang = 'zh-CN'; u.rate = 0.82; u.pitch = 0.35; // 低沉、缓慢、贴近耳语
+      u.lang = 'zh-CN'; u.rate = 0.9; u.pitch = 0.2; // 更低沉，避免部分引擎低音+慢速产生尖锐感
     } else {
       if (echoVoiceEn) u.voice = echoVoiceEn;
-      u.lang = u.voice ? u.voice.lang : 'en-US'; u.rate = 0.8; u.pitch = 0.3;
+      u.lang = u.voice ? u.voice.lang : 'en-US'; u.rate = 0.88; u.pitch = 0.18;
     }
     u.volume = 0.95;
     u.onstart = () => { arTalking = true; setDroneDuck(true); };

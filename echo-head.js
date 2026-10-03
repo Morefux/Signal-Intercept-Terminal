@@ -89,7 +89,7 @@ function EchoHead(canvas, M){
   const rim = new THREE.DirectionalLight(0xff2233, 0.7); rim.position.set(0, 1.2, -4); scene.add(rim);
   const eyeLight = new THREE.PointLight(0xff2222, 0.12, 3); eyeLight.position.set(0, 0.1, 1.8); scene.add(eyeLight);
 
-  const head = new THREE.Group(); head.rotation.y = Math.PI; scene.add(head);
+  const head = new THREE.Group(); head.rotation.y = Math.PI; head.scale.setScalar(1.15); scene.add(head);
   const loader = new THREE.TextureLoader();
   const glitchMats = [];
 
@@ -137,6 +137,31 @@ function EchoHead(canvas, M){
   }
   faceBase = new Float32Array(faceMesh.geometry.attributes.position.array);
   const morphByName = {}; M.morphNames.forEach((name,i)=>morphByName[name]=new Float32Array(M.groups[0].morph[i]));
+
+  // ---- 脖子与兜帽（GLB 贴图在颈部以下是发黑的，运行时补与脸色一致的脖子，再用兜帽/肩膀过渡到背景）----
+  const neckMat = new THREE.MeshStandardMaterial({ color: 0xc9ada0, roughness: 0.9, metalness: 0 });
+  addGlitch(neckMat);
+  // 皮肤色脖子：上端收进下巴，下端被兜帽接住
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.185, 0.255, 0.66, 28, 1), neckMat);
+  neck.position.set(0, -0.92, -0.05);
+  head.add(neck);
+  // 喉结下方的暗色衣领环，肤色与布料之间过渡
+  const collarMat = new THREE.MeshStandardMaterial({ color: 0x3a2622, roughness: 1, metalness: 0 });
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.36, 0.16, 28, 1), collarMat);
+  collar.position.set(0, -1.22, -0.05);
+  head.add(collar);
+  // 兜帽 / 肩膀：开口提前加宽（按模型颈底实际宽度 ±0.52~0.57），完全包住发黑的颈底
+  const hoodPts = [
+    new THREE.Vector2(0.34, -1.06),
+    new THREE.Vector2(0.42, -1.20),
+    new THREE.Vector2(0.60, -1.45),
+    new THREE.Vector2(0.78, -1.80),
+    new THREE.Vector2(0.98, -2.30)
+  ];
+  const hoodMat = new THREE.MeshStandardMaterial({ color: 0x0c0709, roughness: 1, metalness: 0, side: THREE.DoubleSide });
+  const hood = new THREE.Mesh(new THREE.LatheGeometry(hoodPts, 32), hoodMat);
+  hood.position.z = -0.05;
+  head.add(hood);
 
   // ---- eyes ----
   const eyes = [];
