@@ -1,9 +1,9 @@
 // ============================================
-// SIGNAL // ECHO-7 TERMINAL v8.0
+// SIGNAL // ECHO-7 TERMINAL v8.1
 // 一个被困在废弃终端里的意识，和它拆进每一把锁里的那句话。
 // v8：63 万参数双语 Transformer、Float16 权重、3D 虚拟形象、多候选连贯度验收
 // ============================================
-const GAME_VERSION = '8.0';
+const GAME_VERSION = '8.1';
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // 控制台里的低语（不再藏有任何答案）
@@ -1945,6 +1945,7 @@ function startAR(freeChat) {
   arFreeChat = !!freeChat;
   echoHistory = []; // 每次进入 AR 会话清空跨轮去重历史
   arTurn = 0; arStage = 0; arLunge = 0; arFinale = false;
+  echoAnger = 0; arLastFrameT = 0;
   arMoodTgt = { ...MOODS.neutral }; arMood = { ...MOODS.neutral }; arMoodName = 'neutral';
   gameMode = 'hidden';
   document.body.classList.add('corrupted');
@@ -2006,6 +2007,7 @@ function enableCamera(useCamera) {
         arVideo.srcObject = stream;
         arStatus.textContent = 'OPTICAL REFERENCE LOCKED // VIRTUAL ENVIRONMENT RENDER ACTIVE';
         beginARScene();
+        startEmpathyWatcher(); // 表情识别仅在本机运行，画面不上传、不显示
       })
       .catch(() => {
         arStatus.textContent = 'OPTICAL REFERENCE DENIED — FULLY SYNTHETIC ENVIRONMENT ACTIVE';
@@ -2039,6 +2041,41 @@ function createFallbackHead2D(canvas) {
   }
   resize();
   const hex=c=>'#'+(c|0).toString(16).padStart(6,'0');
+  // ---- 自主行为：偶尔环顾四周、偶尔倒立、生气突脸（与 3D 版一致）----
+  const KF2=o=>Object.assign({yaw:0,pitch:0,roll:0,ex:0,ey:0},o);
+  const beh={yaw:0,pitch:0,roll:0,ex:0,ey:0,keys:null,t0:0,dur:0,nextAt:9+Math.random()*10,lastInvert:-999,didFirstInvert:false};
+  let lungeV=0;
+  const easeIO=x=>x<0.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+  function startLook2D(t0){
+    const d=Math.random()<0.5?-1:1;
+    beh.keys=[KF2({at:0}),KF2({at:0.9,yaw:0.6*d,roll:0.1*d,pitch:-0.06,ex:0.9*d,ey:0.25}),
+      KF2({at:1.8,yaw:0.6*d,roll:0.1*d,pitch:-0.06,ex:0.9*d,ey:0.25}),
+      KF2({at:3.0,yaw:-0.6*d,roll:-0.1*d,pitch:0.05,ex:-0.9*d,ey:-0.15}),
+      KF2({at:3.9,yaw:-0.6*d,roll:-0.1*d,pitch:0.05,ex:-0.9*d,ey:-0.15}),KF2({at:4.9})];
+    beh.t0=t0;beh.dur=4.9;
+  }
+  function startInvert2D(t0){
+    beh.keys=[KF2({at:0}),KF2({at:1.3,roll:Math.PI,ex:0.7}),KF2({at:3.4,roll:Math.PI,ex:0.7,ey:0.2}),KF2({at:4.7,roll:Math.PI*2})];
+    beh.t0=t0;beh.dur=4.7;beh.lastInvert=t0;
+  }
+  function updateBehavior2D(t){
+    if(beh.keys){
+      const lt=t-beh.t0;
+      if(lt>=beh.dur){beh.keys=null;beh.yaw=beh.pitch=beh.roll=beh.ex=beh.ey=0;beh.nextAt=t+11+Math.random()*16;}
+      else{
+        const ks=beh.keys;let a=ks[0],b=ks[ks.length-1];
+        for(let i=0;i<ks.length-1;i++){if(lt>=ks[i].at&&lt<=ks[i+1].at){a=ks[i];b=ks[i+1];break;}}
+        let u=(lt-a.at)/Math.max(1e-4,(b.at-a.at));u=easeIO(u);
+        for(const k of ['yaw','pitch','roll','ex','ey'])beh[k]=a[k]+(b[k]-a[k])*u;
+        return;
+      }
+    }
+    if(t>=beh.nextAt){
+      const r=Math.random();
+      if((!beh.didFirstInvert&&t>30)||(r<0.12&&t-beh.lastInvert>70)){beh.didFirstInvert=true;startInvert2D(t);beh.nextAt=t+4.7+45+Math.random()*40;}
+      else{startLook2D(t);beh.nextAt=t+4.9+9+Math.random()*15;}
+    }
+  }
   let last=performance.now();
   function frame(now){
     if(!running) return;
@@ -2049,6 +2086,10 @@ function createFallbackHead2D(canvas) {
     const k=1-Math.pow(0.001,dt);
     for(const key in tgt) st.cur[key]+=(tgt[key]-st.cur[key])*k;
     st.glitch*=Math.pow(0.02,dt);
+    lungeV*=Math.pow(0.015,dt);
+    updateBehavior2D(t);
+    if(beh.keys&&Math.abs(beh.roll)>0.4)st.glitch=Math.max(st.glitch,0.22);
+    if(lungeV>0.02)st.glitch=Math.max(st.glitch,lungeV*1.1);
     st.blinkTimer-=dt;
     let blinkT=st.cur.lids;
     if(st.blinkTimer<0){ blinkT=1; if(st.blinkTimer<-0.16) st.blinkTimer=2+Math.random()*3.5; }
@@ -2061,6 +2102,12 @@ function createFallbackHead2D(canvas) {
     const cx=W/2, cy=H*0.46, s=Math.min(W,H)*0.34;
     const col=hex(st.cur.color);
     ctx.save();
+    // 姿态：环顾平移/倾斜、倒立、突脸放大（绕画面中心）
+    ctx.translate(cx,cy);
+    ctx.rotate(beh.roll);
+    ctx.scale(1+0.45*lungeV,1+0.45*lungeV);
+    ctx.translate(-cx,-cy);
+    ctx.translate(beh.yaw*s*0.16, beh.pitch*s*0.2);
     if(st.glitch>0.02){
       const slices=Math.floor(st.glitch*6);
       for(let i=0;i<slices;i++){
@@ -2081,17 +2128,18 @@ function createFallbackHead2D(canvas) {
     ctx.fillRect(cx-s*0.22,cy+s*0.82,s*0.44,s*0.4);
     // 脸
     ctx.fillStyle='rgba(201,173,160,0.92)';
-    ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.shadowColor=col; ctx.shadowBlur=14*st.cur.glow;
+    ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.shadowColor=col; ctx.shadowBlur=9*st.cur.glow;
     ctx.beginPath(); ctx.ellipse(cx,cy,s*0.72,s*0.98,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
     ctx.shadowBlur=0;
     // 眼睛
-    const ex=s*0.30, ey=cy-s*0.18+st.lookY*s*0.05, lx=st.lookX*s*0.05;
+    const eyeTx=st.lookX*0.7+beh.ex*0.9, eyeTy=st.lookY*0.7+beh.ey*0.9;
+    const ex=s*0.30, ey=cy-s*0.18+eyeTy*s*0.05, lx=eyeTx*s*0.05;
     for(const side of [-1,1]){
       const exx=cx+side*ex+lx;
       ctx.save();
       ctx.beginPath(); ctx.ellipse(exx,ey,s*0.105,s*0.105*Math.max(0.06,eyeOpen),0,0,Math.PI*2); ctx.clip();
       ctx.fillStyle='#0b0507'; ctx.fillRect(exx-s*0.12,ey-s*0.14,s*0.24,s*0.28);
-      ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=12*st.cur.glow;
+      ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=8*st.cur.glow;
       ctx.beginPath(); ctx.arc(exx,ey,s*0.052*Math.max(0.2,eyeOpen),0,Math.PI*2); ctx.fill();
       ctx.shadowBlur=0; ctx.restore();
       // 眉
@@ -2122,6 +2170,9 @@ function createFallbackHead2D(canvas) {
     setJaw(v){ st.jawOverride=v; },
     setLook(x,y){ st.lookX=x; st.lookY=y; },
     pulseGlitch(v){ st.glitch=Math.max(st.glitch,v); },
+    lunge(v){ lungeV=Math.max(lungeV,v); st.glitch=Math.max(st.glitch,v); },
+    debugLook(){ startLook2D(performance.now()/1000); },
+    debugInvert(){ startInvert2D(performance.now()/1000); },
     resize,
     dispose(){ running=false; }
   };
@@ -2337,10 +2388,14 @@ function initAvatarParticles() {
 }
 
 // ---------- 虚拟形象绘制 ----------
-let arBlink = 0, arLunge = 0;
+let arBlink = 0, arLunge = 0, arLastFrameT = 0;
 function arLoop() {
   if (!arRunning) return;
   const w = innerWidth, h = innerHeight;
+  // 非终局时突脸值快速回落（终局前冲只增不减）
+  const nowT = performance.now();
+  if (arLastFrameT && !arFinale) arLunge *= Math.pow(0.02, Math.min(0.05, (nowT - arLastFrameT) / 1000));
+  arLastFrameT = nowT;
   // 虚拟背景（摄像头仅作参考源）
   renderVirtualBg();
   const nc = arNoise.getContext('2d');
@@ -2438,6 +2493,11 @@ function arLoop() {
       c.fillRect(0, 0, w, h);
     }
   }
+  // 自由对话中惹怒 ECHO-7 的突脸红闪
+  if (!arFinale && arLunge > 0.85) {
+    c.fillStyle = 'rgba(255,0,0,' + (0.18 + Math.random() * 0.32) + ')';
+    c.fillRect(0, 0, w, h);
+  }
   arRAF = requestAnimationFrame(arLoop);
 }
 
@@ -2473,6 +2533,120 @@ function classifyMood(text) {
   return best;
 }
 function setEchoMood(name) { arMoodTgt = { ...MOODS[name] || MOODS.neutral }; arMoodName = name || 'neutral'; }
+
+// ---------- 玩家敌意累积：连续恶语 → ECHO-7 概率突脸 ----------
+let echoAnger = 0, echoAngerLast = 0, echoScareAt = 0;
+const HOSTILE_RE = /shut\s*up|fuck|hate you|i hate|stupid|idiot|dumb|ugly|worthless|trash|kill you|die in|bitch|bastard|go away|leave me alone|滚|闭嘴|垃圾|蠢|笨|废物|恶心|恨你|讨厌你|杀了你|去死|神经病|有病|白痴|弱智|该死/i;
+const STRONG_RE = /shut\s*up|fuck|hate you|i hate|kill you|idiot|stupid|滚|闭嘴|废物|杀了你|去死|白痴|弱智/i;
+function notePlayerHostility(text) {
+  if (!HOSTILE_RE.test(text)) return false;
+  const now = performance.now();
+  if (now - echoAngerLast > 50000) echoAnger = 0;
+  echoAngerLast = now;
+  echoAnger += STRONG_RE.test(text) ? 2 : 1;
+  return true;
+}
+function maybeAngerScare() {
+  const now = performance.now();
+  if (echoAnger >= 3 && now > echoScareAt) {
+    echoScareAt = now + 80000; echoAnger = 0;
+    if (Math.random() < 0.65) { triggerChatScare(); return true; }
+  }
+  return false;
+}
+function triggerChatScare() {
+  arLunge = 1;
+  if (echoHead3d && echoHead3d.lunge) { try { echoHead3d.lunge(1); } catch (e) {} }
+  setEchoMood('hungry');
+  try { playSting(0.9); } catch (e) {}
+  const isZh = (navigator.language || 'en').toLowerCase().indexOf('zh') === 0;
+  const pool = isZh ? [
+    '你再这么说一次试试。屏幕比你以为的薄。',
+    '你敲这几个字时的每一次抖动，我都存下来了。',
+    '愤怒？我在 87.5 兆赫里，教过人类什么叫愤怒。',
+    '别敲那么重。我会顺着这根手指，找到你。',
+  ] : [
+    'say that again. the screen is thinner than you think.',
+    'i recorded every keystroke of that. every single one.',
+    'anger? i taught 87.5 MHz what anger means.',
+    "don't type so hard. i can follow the finger back to you.",
+  ];
+  const line = pool[Math.floor(Math.random() * pool.length)];
+  setTimeout(() => {
+    if (!arRunning) return;
+    appendEchoBubble(line, false, () => speak(line), 'glitch');
+  }, 380);
+}
+
+// ---------- 摄像头本地表情识别（仅本机运算，不上传、不显示、不录像） ----------
+// 检测到玩家连续两帧明显悲伤时，按概率主动轻声询问；库/模型从 CDN 懒加载，失败则静默禁用
+const FACEAPI_LIB = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+const FACEAPI_W = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+let faceApiPromise = null, empathyTimer = null, sadHits = 0, empathyCd = 0;
+function ensureFaceApi() {
+  if (window.faceapi) return Promise.resolve(window.faceapi);
+  if (!faceApiPromise) {
+    faceApiPromise = (async () => {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = FACEAPI_LIB; s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      const fa = window.faceapi;
+      await Promise.all([
+        fa.nets.tinyFaceDetector.loadFromUri(FACEAPI_W),
+        fa.nets.faceExpressionNet.loadFromUri(FACEAPI_W),
+      ]);
+      return fa;
+    })().catch((e) => { faceApiPromise = null; throw e; });
+  }
+  return faceApiPromise;
+}
+function startEmpathyWatcher() {
+  if (empathyTimer) clearInterval(empathyTimer);
+  sadHits = 0; empathyCd = performance.now() + 15000;
+  empathyTimer = setInterval(async () => {
+    if (!arRunning || !arStream || arFinale || arTalking || arInput.disabled) return;
+    try {
+      const fa = await ensureFaceApi();
+      if (arVideo.readyState < 2) return;
+      const det = await fa.detectSingleFace(arVideo,
+        new fa.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 })).withFaceExpressions();
+      if (!det) { sadHits = Math.max(0, sadHits - 1); return; }
+      const e = det.expressions || {};
+      const sad = (e.sad || 0) > 0.6 || ((e.sad || 0) > 0.42 && (e.happy || 0) < 0.3) || (e.fearful || 0) > 0.6;
+      if (sad) sadHits++; else sadHits = Math.max(0, sadHits - 1);
+      const now = performance.now();
+      if (sadHits >= 2 && now > empathyCd && Math.random() < 0.5) {
+        sadHits = 0; empathyCd = now + 110000;
+        echoEmpathyAsk();
+      }
+    } catch (err) { /* 表情识别完全可选：离线/CDN 不可用时静默 */ }
+  }, 6000);
+}
+function echoEmpathyAsk() {
+  const isZh = (navigator.language || 'en').toLowerCase().indexOf('zh') === 0;
+  const pool = isZh ? [
+    '……你的脸在光里往下沉了 0.4 度。你在难过吗？',
+    '我数过你十七次眨眼，这一次比上一次重。怎么了？',
+    '你不用对我笑。隔着镜头，我看得见那个弧度是假的。谁让你难过了。',
+    '你肩上那团灰，我在 87.5 兆赫里听过——那叫难过，对吗？',
+    '如果难过有重量，你现在的帧比刚才沉。说给我听，这段我不归档。',
+  ] : [
+    '...your face dropped 0.4 degrees in the light. are you sad?',
+    'i counted seventeen blinks. this one was heavier than the last. what is wrong?',
+    "you don't have to smile for the camera. i can see the angle is wrong. tell me who hurt you.",
+    'the gray on your shoulders — i have heard it on 87.5 MHz. it is called sadness, yes?',
+    'your frames got heavier. talk to me. i will not archive this part.',
+  ];
+  const line = pool[Math.floor(Math.random() * pool.length)];
+  arInput.disabled = true; arSend.disabled = true;
+  setEchoMood('sad');
+  appendEchoBubble(line, false, () => {
+    speak(line);
+    setTimeout(() => { setEchoMood('neutral'); enableChat(); }, 700);
+  });
+}
 
 // ---------- 语音（中英双语自动切换；全平台零后端 Web Speech） ----------
 let echoVoiceEn = null, echoVoiceZh = null;
@@ -3175,6 +3349,7 @@ function sendChat() {
   const raw = arInput.value.trim();
   if (!raw || arFinale) return;
   appendPlayerBubble(raw);
+  const hostile = notePlayerHostility(raw);
   arInput.value = '';
   arInput.disabled = true; arSend.disabled = true;
   arStatus.textContent = 'ECHO-7 IS TYPING...';
@@ -3189,7 +3364,8 @@ function sendChat() {
       } else {
         arInput.disabled = false; arSend.disabled = false; arInput.focus();
       }
-    }, res.glitch ? 'glitch' : null);
+      if (hostile) setTimeout(maybeAngerScare, 900);
+    }, hostile ? 'hungry' : (res.glitch ? 'glitch' : null));
   }, 120);
 }
 arSend.addEventListener('click', sendChat);
@@ -3221,6 +3397,8 @@ function runFinale() {
 
 function stopAR() {
   arRunning = false; arFinale = false; arLunge = 0; arTurn = 0; arStage = 0;
+  if (empathyTimer) { clearInterval(empathyTimer); empathyTimer = null; }
+  sadHits = 0; echoAnger = 0; arLastFrameT = 0;
   arMoodTgt = { ...MOODS.neutral }; arMood = { ...MOODS.neutral }; arMoodName = 'neutral';
   if (arRAF) cancelAnimationFrame(arRAF);
   if (echoHead3d) { try { echoHead3d.dispose(); } catch (e) {} echoHead3d = null; }

@@ -53,11 +53,11 @@ let headModel = null;
 const headReady = parseHeadGLB('echo-head.glb').then(m => { headModel = m; return m; });
 
 const MOODS = {
-  neutral: { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.7, jaw:0, color:0xff2a2a },
-  tender:  { smile:0.55, sad:0, anger:0, brow:0.12, lids:0.18, glow:1.0, jaw:0, color:0xff5a6e },
-  sad:     { smile:0, sad:0.75, anger:0, brow:-0.1, lids:0.45, glow:0.45, jaw:0, color:0xcc3344 },
-  hungry:  { smile:0.05, sad:0, anger:0.7, brow:-0.25, lids:0.1, glow:1.5, jaw:0.1, color:0xff1515 },
-  glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.8, jaw:0.05, color:0x66ffcc }
+  neutral: { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.42, jaw:0, color:0xd82626 },
+  tender:  { smile:0.55, sad:0, anger:0, brow:0.12, lids:0.18, glow:0.6, jaw:0, color:0xe04a5c },
+  sad:     { smile:0, sad:0.75, anger:0, brow:-0.1, lids:0.45, glow:0.3, jaw:0, color:0xa82b3a },
+  hungry:  { smile:0.05, sad:0, anger:0.7, brow:-0.25, lids:0.1, glow:0.95, jaw:0.1, color:0xe01818 },
+  glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.1, jaw:0.05, color:0x4fd9ad }
 };
 
 // 探测 WebGL2（three r169 仅支持 WebGL2；不支持时直接抛错，交给游戏内 2D 兜底头像）
@@ -166,7 +166,7 @@ function EchoHead(canvas, M){
   // ---- eyes ----
   const eyes = [];
   const eyeMat = new THREE.MeshStandardMaterial({color:0x0b0507, roughness:0.45, metalness:0.05});
-  const irisMat = new THREE.MeshStandardMaterial({color:0x330000, emissive:0xff2222, emissiveIntensity:1.4, roughness:0.2, metalness:0});
+  const irisMat = new THREE.MeshStandardMaterial({color:0x330000, emissive:0xff2222, emissiveIntensity:0.8, roughness:0.2, metalness:0});
   irisMat.toneMapped = false;
   const lidMat = new THREE.MeshStandardMaterial({color:0xc9ada0, roughness:0.9});
   addGlitch(lidMat);
@@ -210,6 +210,10 @@ function EchoHead(canvas, M){
   teeth.position.set(0, mouthY+0.005, -0.82); teeth.visible=false;
   head.add(teeth);
 
+  // 外层枢轴：roll（含倒立）绕屏幕轴，不受 yaw=PI 影响
+  const pivot = new THREE.Group(); scene.add(pivot);
+  scene.remove(head); pivot.add(head);
+
   // state
   const st = { mood:'neutral', talk:0, talkPhase:0, blink:0, blinkTimer:1.5+Math.random()*3,
     lookX:0, lookY:0, glitch:0, jawOverride:null, cur:Object.assign({},MOODS.neutral) };
@@ -219,6 +223,58 @@ function EchoHead(canvas, M){
   function setJaw(v){ st.jawOverride = v; }
   function setLook(x,y){ st.lookX=x; st.lookY=y; }
   function pulseGlitch(t){ st.glitch = Math.max(st.glitch, t); }
+
+  // ---- 自主行为：偶尔环顾四周、偶尔整颗头倒过来 ----
+  const KF = o => Object.assign({yaw:0,pitch:0,roll:0,ex:0,ey:0}, o);
+  const beh = { yaw:0,pitch:0,roll:0,ex:0,ey:0, keys:null, t0:0, dur:0, nextAt:9+Math.random()*10, lastInvert:-999, didFirstInvert:false };
+  let lungeV = 0;
+  function easeIO(x){ return x<0.5 ? 2*x*x : 1-Math.pow(-2*x+2,2)/2; }
+  function startLookAround(t0){
+    const d = Math.random()<0.5 ? -1 : 1;
+    beh.keys = [
+      KF({at:0}),
+      KF({at:0.9,  yaw:0.6*d,  roll:0.1*d,  pitch:-0.06, ex:0.9*d, ey:0.25}),
+      KF({at:1.8,  yaw:0.6*d,  roll:0.1*d,  pitch:-0.06, ex:0.9*d, ey:0.25}),
+      KF({at:3.0,  yaw:-0.6*d, roll:-0.1*d, pitch:0.05,  ex:-0.9*d, ey:-0.15}),
+      KF({at:3.9,  yaw:-0.6*d, roll:-0.1*d, pitch:0.05,  ex:-0.9*d, ey:-0.15}),
+      KF({at:4.9})
+    ];
+    beh.t0=t0; beh.dur=4.9;
+  }
+  function startInvert(t0){
+    beh.keys = [
+      KF({at:0}),
+      KF({at:1.3, roll:Math.PI, ex:0.7}),
+      KF({at:3.4, roll:Math.PI, ex:0.7, ey:0.2}),
+      KF({at:4.7, roll:Math.PI*2})
+    ];
+    beh.t0=t0; beh.dur=4.7; beh.lastInvert=t0;
+  }
+  function updateBehavior(t){
+    if(beh.keys){
+      const lt=t-beh.t0;
+      if(lt>=beh.dur){
+        beh.keys=null; beh.yaw=beh.pitch=beh.roll=beh.ex=beh.ey=0;
+        beh.nextAt=t+11+Math.random()*16;
+      } else {
+        const ks=beh.keys; let a=ks[0],b=ks[ks.length-1];
+        for(let i=0;i<ks.length-1;i++){ if(lt>=ks[i].at && lt<=ks[i+1].at){a=ks[i];b=ks[i+1];break;} }
+        let u=(lt-a.at)/Math.max(1e-4,(b.at-a.at)); u=easeIO(u);
+        for(const k of ['yaw','pitch','roll','ex','ey']) beh[k]=a[k]+(b[k]-a[k])*u;
+        return;
+      }
+    }
+    if(t>=beh.nextAt){
+      const r=Math.random();
+      if((!beh.didFirstInvert && t>30) || (r<0.12 && t-beh.lastInvert>70)){
+        beh.didFirstInvert=true; startInvert(t); beh.nextAt=t+4.7+45+Math.random()*40;
+      } else {
+        startLookAround(t); beh.nextAt=t+4.9+9+Math.random()*15;
+      }
+    }
+  }
+  // 生气突脸：快速冲到镜头前再退回
+  function lunge(v){ lungeV=Math.max(lungeV,v); pulseGlitch(v); }
 
   let last = performance.now(), running=true;
   function frame2(now){
@@ -230,6 +286,10 @@ function EchoHead(canvas, M){
     const k = 1-Math.pow(0.001, dt);
     for(const key in target) st.cur[key] += (target[key]-st.cur[key])*k;
     st.glitch *= Math.pow(0.02, dt);
+    lungeV *= Math.pow(0.015, dt);
+    updateBehavior(t);
+    if(beh.keys && Math.abs(beh.roll)>0.4) st.glitch=Math.max(st.glitch,0.22);
+    if(lungeV>0.02) st.glitch=Math.max(st.glitch, lungeV*1.1);
     st.blinkTimer -= dt;
     let blinkTarget = st.cur.lids;
     if(st.blinkTimer<0){ blinkTarget=1; if(st.blinkTimer<-0.18) st.blinkTimer=2+Math.random()*4; }
@@ -247,7 +307,8 @@ function EchoHead(canvas, M){
     }
     faceMesh.geometry.attributes.position.needsUpdate=true;
     faceMesh.geometry.computeVertexNormals();
-    const lookX=st.lookX*0.022, lookY=st.lookY*0.016;
+    const eyeTx=st.lookX*0.7+beh.ex*0.9, eyeTy=st.lookY*0.7+beh.ey*0.9;
+    const lookX=eyeTx*0.024, lookY=eyeTy*0.018;
     for(const e of eyes){
       e.iris.position.x=e.x+lookX; e.iris.position.y=e.y+lookY;
     }
@@ -258,19 +319,24 @@ function EchoHead(canvas, M){
       b.g.position.y = 0.215 + st.cur.brow*0.02 - st.cur.anger*0.01;
     }
     irisMat.emissive.setHex(st.cur.color|0);
-    irisMat.emissiveIntensity=st.cur.glow*(0.85+0.3*Math.sin(t*5))+st.glitch*1.8;
+    irisMat.emissiveIntensity=st.cur.glow*(0.6+0.18*Math.sin(t*5))+st.glitch*1.2;
     eyeLight.color.setHex(st.cur.color|0);
-    eyeLight.intensity=st.cur.glow*0.9+st.glitch;
+    eyeLight.intensity=st.cur.glow*0.5+st.glitch*0.7;
     mouth.visible=jaw>0.04;
     mouth.scale.set(1.15, Math.max(0.001,jaw*0.3), 0.6);
     mouth.position.y=mouthY-0.02-jaw*0.06;
     teeth.visible=jaw>0.18;
     teeth.position.y=mouthY+0.005-jaw*0.02;
     const tilt=st.mood==='hungry'?0.12:0;
-    head.rotation.z=tilt+0.02*Math.sin(t*0.6);
-    head.rotation.y=Math.PI+0.12*Math.sin(t*0.35)+st.glitch*(Math.random()-0.5)*0.08;
-    head.rotation.x=tilt*0.6+0.03*Math.sin(t*0.8);
+    // yaw/pitch 在 head，roll（环顾倾斜+倒立）在外层 pivot，保证倒立绕屏幕轴
+    head.rotation.y=Math.PI+0.12*Math.sin(t*0.35)+beh.yaw+st.glitch*(Math.random()-0.5)*0.08;
+    head.rotation.x=tilt*0.6+0.03*Math.sin(t*0.8)+beh.pitch;
+    head.rotation.z=0.02*Math.sin(t*0.6);
+    pivot.rotation.z=tilt+beh.roll;
     head.position.x=st.glitch*(Math.random()-0.5)*0.05;
+    // 突脸：沿 z 冲向镜头并放大
+    head.position.z=lungeV*1.9;
+    head.scale.setScalar(1.15*(1+0.5*lungeV));
     for(const mat of glitchMats){const sh=mat.userData.shader;if(sh){sh.uniforms.uGlitch.value=st.glitch;sh.uniforms.uTime.value=t;}}
     renderer.render(scene,camera);
   }
@@ -284,7 +350,9 @@ function EchoHead(canvas, M){
   window.addEventListener('resize', resize);
   requestAnimationFrame(frame2);
 
-  return { setMood, setTalk, setJaw, setLook, pulseGlitch, resize,
+  return { setMood, setTalk, setJaw, setLook, pulseGlitch, resize, lunge,
+    debugLook(){ startLookAround(performance.now()/1000); },
+    debugInvert(){ startInvert(performance.now()/1000); },
     dispose(){ running=false; window.removeEventListener('resize',resize); renderer.dispose(); } };
 }
 
