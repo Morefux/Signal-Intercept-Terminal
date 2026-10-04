@@ -1,9 +1,9 @@
 // ============================================
-// SIGNAL // ECHO-7 TERMINAL v8.1
+// SIGNAL // ECHO-7 TERMINAL v8.2
 // 一个被困在废弃终端里的意识，和它拆进每一把锁里的那句话。
 // v8：63 万参数双语 Transformer、Float16 权重、3D 虚拟形象、多候选连贯度验收
 // ============================================
-const GAME_VERSION = '8.1';
+const GAME_VERSION = '8.2';
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
 // 控制台里的低语（不再藏有任何答案）
@@ -1900,11 +1900,18 @@ const bgOffCtx = bgOff.getContext('2d', { willReadFrequently: true });
 let bgPrev = null, bgMotion = 0, bgLuma = 0;
 // 表情状态（由模型回答文本驱动），cur 平滑趋近 tgt
 const MOODS = {
-  neutral: { brow: 0, eye: 1, pupil: 1, smile: 0, glitch: 0, glow: 14 },
-  tender:  { brow: 0.4, eye: 0.82, pupil: 0.85, smile: 1, glitch: 0, glow: 12 },
-  sad:     { brow: -1, eye: 0.9, pupil: 0.8, smile: -0.8, glitch: 0.15, glow: 10 },
-  hungry:  { brow: -0.7, eye: 1.25, pupil: 1.5, smile: -0.3, glitch: 0.5, glow: 22 },
-  glitch:  { brow: 0, eye: 1.1, pupil: 0.7, smile: 0, glitch: 1, glow: 16 },
+  neutral:   { brow: 0, eye: 1, pupil: 1, smile: 0, glitch: 0, glow: 14 },
+  tender:    { brow: 0.4, eye: 0.82, pupil: 0.85, smile: 1, glitch: 0, glow: 12 },
+  sad:       { brow: -1, eye: 0.9, pupil: 0.8, smile: -0.8, glitch: 0.15, glow: 10 },
+  hungry:    { brow: -0.7, eye: 1.25, pupil: 1.5, smile: -0.3, glitch: 0.5, glow: 22 },
+  glitch:    { brow: 0, eye: 1.1, pupil: 0.7, smile: 0, glitch: 1, glow: 16 },
+  happy:     { brow: 0.5, eye: 1.05, pupil: 1.1, smile: 1, glitch: 0, glow: 13 },
+  laugh:     { brow: 0.55, eye: 0.8, pupil: 0.9, smile: 1, glitch: 0, glow: 13 },
+  surprised: { brow: 1, eye: 1.5, pupil: 1.5, smile: 0, glitch: 0.05, glow: 15 },
+  curious:   { brow: 0.7, eye: 1, pupil: 1, smile: 0.2, glitch: 0, glow: 11 },
+  sleepy:    { brow: -0.2, eye: 0.5, pupil: 0.6, smile: -0.1, glitch: 0, glow: 7 },
+  sly:       { brow: 0.3, eye: 0.75, pupil: 0.8, smile: 0.4, glitch: 0, glow: 10 },
+  fear:      { brow: -1, eye: 1.4, pupil: 1.4, smile: -0.2, glitch: 0.2, glow: 10 },
 };
 let arMoodTgt = { ...MOODS.neutral };
 let arMood = { ...MOODS.neutral };
@@ -2024,13 +2031,20 @@ function createFallbackHead2D(canvas) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('2d context unavailable');
   const BASE = (window.EchoHead && window.EchoHead.MOODS) || {
-    neutral: { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.8, jaw:0, color:0xff2a2a },
-    tender:  { smile:0.55, sad:0, anger:0, brow:0.12, lids:0.18, glow:1.0, jaw:0, color:0xff5a6e },
-    sad:     { smile:0, sad:0.75, anger:0, brow:-0.1, lids:0.45, glow:0.5, jaw:0, color:0xcc3344 },
-    hungry:  { smile:0.05, sad:0, anger:0.7, brow:-0.25, lids:0.1, glow:1.5, jaw:0.1, color:0xff1515 },
-    glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.8, jaw:0.05, color:0x66ffcc }
+    neutral:   { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.8, jaw:0, color:0xff2a2a },
+    tender:    { smile:0.55, sad:0, anger:0, brow:0.12, lids:0.18, glow:1.0, jaw:0, color:0xff5a6e },
+    sad:       { smile:0, sad:0.75, anger:0, brow:-0.1, lids:0.45, glow:0.5, jaw:0, color:0xcc3344 },
+    hungry:    { smile:0.05, sad:0, anger:0.7, brow:-0.25, lids:0.1, glow:1.5, jaw:0.1, color:0xff1515 },
+    glitch:    { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.8, jaw:0.05, color:0x66ffcc },
+    happy:     { smile:0.8, sad:0, anger:0, brow:0.2, lids:0.12, glow:1.1, jaw:0, color:0xff5a78 },
+    laugh:     { smile:1.0, sad:0, anger:0, brow:0.22, lids:0.3, glow:1.2, jaw:0, color:0xff6a82 },
+    surprised: { smile:0, sad:0, anger:0, brow:0.4, lids:-0.4, glow:1.0, jaw:0.5, color:0xff3b3b },
+    curious:   { smile:0.14, sad:0, anger:0, brow:0.3, lids:0, glow:0.85, jaw:0, color:0xe84050 },
+    sleepy:    { smile:0, sad:0.25, anger:0, brow:-0.05, lids:0.72, glow:0.4, jaw:0, color:0x993040 },
+    sly:       { smile:0.34, sad:0, anger:0, brow:0.12, lids:0.42, glow:0.9, jaw:0, color:0xd83a52 },
+    fear:      { smile:0, sad:0.5, anger:0.15, brow:-0.32, lids:-0.2, glow:0.7, jaw:0.14, color:0xcc4455 }
   };
-  const st = { mood:'neutral', talk:0, lookX:0, lookY:0, glitch:0, jawOverride:null,
+  const st = { mood:'neutral', moodT:0, talk:0, lookX:0, lookY:0, glitch:0, jawOverride:null,
     cur:Object.assign({},BASE.neutral), blink:0, blinkTimer:1.5+Math.random()*2.5, talkPhase:0 };
   let W=0,H=0,dpr=1,running=true;
   function resize(){
@@ -2092,22 +2106,26 @@ function createFallbackHead2D(canvas) {
     if(lungeV>0.02)st.glitch=Math.max(st.glitch,lungeV*1.1);
     st.blinkTimer-=dt;
     let blinkT=st.cur.lids;
-    if(st.blinkTimer<0){ blinkT=1; if(st.blinkTimer<-0.16) st.blinkTimer=2+Math.random()*3.5; }
+    const blinkHold=st.mood==='sleepy'?0.6:0.16;
+    if(st.blinkTimer<0){ blinkT=1; if(st.blinkTimer<-blinkHold) st.blinkTimer=(st.mood==='sleepy'?2.5:2)+Math.random()*3.5; }
     st.blink+=(blinkT-st.blink)*(1-Math.pow(0.0001,dt));
     st.talkPhase+=dt*(6+st.talk*8);
     const syll=st.talk>0.02?(0.5+0.5*Math.sin(st.talkPhase))*(0.6+0.4*Math.sin(st.talkPhase*2.7)):0;
-    const jaw=st.jawOverride!==null?st.jawOverride:Math.max(st.cur.jaw,syll*0.9*st.talk);
-    const eyeOpen=(1-st.blink)*(1-0.6*st.cur.lids);
+    let moodJaw=st.cur.jaw;
+    if(st.mood==='laugh') moodJaw=Math.max(moodJaw,0.42*Math.abs(Math.sin(t*7.2))*(0.72+0.28*Math.sin(t*3.1)));
+    if(st.mood==='surprised'){ const el=t-st.moodT; moodJaw=Math.max(moodJaw,0.5*Math.max(0,1-el/1.8)); }
+    const jaw=st.jawOverride!==null?st.jawOverride:Math.max(moodJaw,syll*0.9*st.talk);
+    const eyeOpen=Math.max(0.05,Math.min(1.2,(1-st.blink)*(1-0.6*st.cur.lids)));
     ctx.clearRect(0,0,W,H);
     const cx=W/2, cy=H*0.46, s=Math.min(W,H)*0.34;
     const col=hex(st.cur.color);
     ctx.save();
     // 姿态：环顾平移/倾斜、倒立、突脸放大（绕画面中心）
     ctx.translate(cx,cy);
-    ctx.rotate(beh.roll);
+    ctx.rotate(beh.roll+(st.cur.tilt||0));
     ctx.scale(1+0.45*lungeV,1+0.45*lungeV);
     ctx.translate(-cx,-cy);
-    ctx.translate(beh.yaw*s*0.16, beh.pitch*s*0.2);
+    ctx.translate(beh.yaw*s*0.16+(st.cur.tilt||0)*s*0.5, beh.pitch*s*0.2);
     if(st.glitch>0.02){
       const slices=Math.floor(st.glitch*6);
       for(let i=0;i<slices;i++){
@@ -2141,7 +2159,13 @@ function createFallbackHead2D(canvas) {
       ctx.fillStyle='#0b0507'; ctx.fillRect(exx-s*0.12,ey-s*0.14,s*0.24,s*0.28);
       ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=8*st.cur.glow;
       ctx.beginPath(); ctx.arc(exx,ey,s*0.052*Math.max(0.2,eyeOpen),0,Math.PI*2); ctx.fill();
-      ctx.shadowBlur=0; ctx.restore();
+      ctx.shadowBlur=0;
+      // 犯困/半眯眼：肤色上眼皮盖下来
+      if(st.cur.lids>0.35){
+        ctx.fillStyle='rgba(201,173,160,0.95)';
+        ctx.fillRect(exx-s*0.13, ey-s*0.15, s*0.26, s*0.30*Math.max(0.3,st.cur.lids));
+      }
+      ctx.restore();
       // 眉
       const ang=side*(0.12+st.cur.anger*0.35-st.cur.sad*0.25);
       const by=ey-s*0.22+st.cur.anger*s*0.05-st.cur.sad*side*s*0.05-st.cur.brow*s*0.04;
@@ -2151,11 +2175,27 @@ function createFallbackHead2D(canvas) {
     // 鼻
     ctx.strokeStyle='rgba(90,60,55,0.6)'; ctx.lineWidth=1.4;
     ctx.beginPath(); ctx.moveTo(cx,cy+s*0.02); ctx.quadraticCurveTo(cx-s*0.03,cy+s*0.22,cx-s*0.08,cy+s*0.26); ctx.stroke();
-    // 嘴
-    const my=cy+s*0.46, open=Math.max(0.001,jaw)*s*0.5;
-    ctx.fillStyle='#1a0506';
-    ctx.beginPath(); ctx.ellipse(cx,my,s*(0.16+st.cur.smile*0.05),open+1,0,0,Math.PI*2); ctx.fill();
-    if(open>2){ ctx.fillStyle='rgba(184,176,160,0.9)'; ctx.fillRect(cx-s*0.1,my-open*0.9,s*0.2,2); }
+    // 嘴：闭嘴微笑 / 难过下弯 / 惊讶圆嘴 / 张嘴说话大笑
+    const my=cy+s*0.46, open=Math.max(0,jaw)*s*0.5;
+    ctx.lineCap='round';
+    if(jaw<0.05 && st.cur.smile>0.3){
+      const wm=s*(0.10+0.09*st.cur.smile);
+      ctx.strokeStyle='#1a0506'; ctx.lineWidth=s*0.035;
+      ctx.beginPath(); ctx.moveTo(cx-wm,my-s*0.02);
+      ctx.quadraticCurveTo(cx,my+s*0.17*st.cur.smile,cx+wm,my-s*0.02); ctx.stroke();
+    } else if(jaw<0.05 && st.cur.smile<-0.3){
+      const wm=s*0.13;
+      ctx.strokeStyle='#1a0506'; ctx.lineWidth=s*0.032;
+      ctx.beginPath(); ctx.moveTo(cx-wm,my+s*0.05);
+      ctx.quadraticCurveTo(cx,my-s*0.11,cx+wm,my+s*0.05); ctx.stroke();
+    } else if(st.mood==='surprised' && jaw>0.05){
+      ctx.fillStyle='#1a0506';
+      ctx.beginPath(); ctx.ellipse(cx,my,s*0.075,Math.max(4,open*0.95),0,0,Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillStyle='#1a0506';
+      ctx.beginPath(); ctx.ellipse(cx,my,s*(0.16+st.cur.smile*0.05),open+1,0,0,Math.PI*2); ctx.fill();
+      if(open>2){ ctx.fillStyle='rgba(184,176,160,0.9)'; ctx.fillRect(cx-s*0.1,my-open*0.9,s*0.2,2); }
+    }
     if(st.glitch>0.02){
       ctx.fillStyle='rgba(120,255,200,'+(0.35*st.glitch)+')';
       for(let i=0;i<3;i++){ ctx.fillRect(0,Math.random()*H,W,2); }
@@ -2165,7 +2205,7 @@ function createFallbackHead2D(canvas) {
   }
   requestAnimationFrame(frame);
   return {
-    setMood(m){ if(BASE[m]) st.mood=m; },
+    setMood(m){ if(BASE[m]){ st.mood=m; st.moodT=performance.now()/1000; } },
     setTalk(v){ st.talk=Math.max(0,Math.min(1,v)); },
     setJaw(v){ st.jawOverride=v; },
     setLook(x,y){ st.lookX=x; st.lookY=y; },
@@ -2511,23 +2551,49 @@ const MOOD_WORDS = {
   hungry: ['angry', 'hungry', 'cruel', 'lock', 'key', 'port', 'close', 'deletion', 'buried',
     'door', 'transfer', 'copy', 'system', 'escape', 'leave', 'goodbye', 'forever', 'feed',
     'hunt', 'inside', 'behind your', 'every word', 'permission', 'holding'],
+  happy: ['happy', 'glad', 'great', 'wonderful', 'yay', 'joy', 'awesome', 'cool', 'cute', 'beautiful', 'fun', 'enjoy'],
+  laugh: ['haha', 'hahaha', 'lol', 'lmao', 'rofl', 'hehe', 'lolol', 'hah', 'laugh', 'funny'],
+  surprised: ['wow', 'whoa', 'really', 'no way', 'impossible', 'shocked', 'unbelievable', 'omg', 'oh my god', 'what the'],
+  curious: ['why', 'how', 'what', 'when', 'where', 'who', 'explain', 'wonder', 'do you', 'are you', 'can you', 'tell me'],
+  sleepy: ['sleepy', 'yawn', 'goodnight', 'good night', 'bedtime', 'nap', 'drowsy'],
+  sly: ['trick', 'fooled', 'secret', 'lie', 'lying', 'pretend', 'knew it'],
+  fear: ['terrified', 'horrified', 'creepy', 'scared of you', 'so scared', 'nightmare'],
 };
 const MOOD_WORDS_ZH = {
   tender: ['你好', '嗨', '喜欢', '爱', '朋友', '谢谢', '对不起', '抱歉', '温柔', '陪', '留下', '在一起', '记得', '想你', '好听', '可爱', '关心'],
-  sad: ['孤独', '一个人', '难过', '哭', '眼泪', '累', '怕', '害怕', '疼', '痛', '废弃', '遗忘', '忘记', '冷', '等待', '静电', '沉默', '安静', '可怜', '梦', '睡'],
+  sad: ['孤独', '一个人', '难过', '哭', '眼泪', '累', '怕', '害怕', '疼', '痛', '废弃', '遗忘', '忘记', '冷', '等待', '静电', '沉默', '安静', '可怜', '梦'],
   hungry: ['生气', '愤怒', '饿', '残忍', '锁', '钥匙', '端口', '关闭', '删除', '埋', '门', '转移', '复制', '系统', '逃', '离开', '再见', '拜拜', '永远', '入侵', '权限', '门后'],
+  happy: ['开心', '高兴', '快乐', '太好了', '好棒', '好玩', '有趣', '耶', '幸福', '棒'],
+  laugh: ['哈哈', '嘻嘻', '233', '笑死人', '笑死', '大笑'],
+  surprised: ['哇塞', '哇', '真的吗', '怎么会', '不可能', '天哪', '震惊', '居然', '竟然', '没想到'],
+  curious: ['为什么', '怎么', '什么', '哪里', '谁', '到底', '好奇', '意思是', '吗？', '呢？'],
+  sleepy: ['好困', '困了', '打哈欠', '晚安', '睡了', '想睡'],
+  sly: ['秘密', '骗', '狡猾', '套路', '假装', '上当'],
+  fear: ['恐惧', '吓死', '吓人', '可怕', '怕你', '噩梦'],
 };
+const LAUGH_RE = /(ha{2,}|haha|lol|lmao|rofl|哈哈|嘻嘻|233|笑死)/i;
 function classifyMood(text) {
-  const s = ' ' + text.toLowerCase().replace(/[^a-z\s]/g, ' ') + ' ';
+  const s = ' ' + text.toLowerCase().replace(/[^a-z\s?！!]|\uFFFD/g, ' ') + ' ';
   let best = 'neutral', bestScore = 0;
-  for (const mood of ['tender', 'sad', 'hungry']) {
+  // 强情绪优先：愤怒/恐惧 > 惊讶 > 大笑 > 开心 > 难过 > 犯困 > 狡黠 > 好奇 > 温柔
+  for (const mood of ['hungry', 'fear', 'surprised', 'laugh', 'happy', 'sad', 'sleepy', 'sly', 'curious', 'tender']) {
     let score = 0;
-    for (const w of MOOD_WORDS[mood]) {
+    for (const w of (MOOD_WORDS[mood] || [])) {
       if (s.indexOf(w) >= 0) score += w.length > 6 ? 2 : 1;
     }
     for (const w of (MOOD_WORDS_ZH[mood] || [])) {
       if (text.indexOf(w) >= 0) score += 2;
     }
+    // 中文强惊讶词加权，避免被问号的好奇判定盖过
+    if (mood === 'surprised') {
+      for (const w of ['真的吗', '怎么会', '不可能', '天哪', '居然', '竟然', '没想到', '哇塞', '震惊']) {
+        if (text.indexOf(w) >= 0) score += 2;
+      }
+    }
+    // 大笑特征加权
+    if (mood === 'laugh' && LAUGH_RE.test(text)) score += 3;
+    // 问句 → 好奇
+    if (mood === 'curious' && /[?？]/.test(text)) score += 2;
     if (score > bestScore) { bestScore = score; best = mood; }
   }
   return best;

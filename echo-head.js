@@ -53,11 +53,18 @@ let headModel = null;
 const headReady = parseHeadGLB('echo-head.glb').then(m => { headModel = m; return m; });
 
 const MOODS = {
-  neutral: { smile:0.05, sad:0, anger:0, brow:0, lids:0, glow:0.42, jaw:0, color:0xd82626 },
-  tender:  { smile:0.55, sad:0, anger:0, brow:0.12, lids:0.18, glow:0.6, jaw:0, color:0xe04a5c },
-  sad:     { smile:0, sad:0.75, anger:0, brow:-0.1, lids:0.45, glow:0.3, jaw:0, color:0xa82b3a },
-  hungry:  { smile:0.05, sad:0, anger:0.7, brow:-0.25, lids:0.1, glow:0.95, jaw:0.1, color:0xe01818 },
-  glitch:  { smile:0, sad:0.2, anger:0.3, brow:0, lids:0, glow:1.1, jaw:0.05, color:0x4fd9ad }
+  neutral:   { smile:0.05, sad:0,    anger:0,    brow:0,     lids:0,    glow:0.42, jaw:0,    color:0xd82626, tilt:0 },
+  tender:    { smile:0.55, sad:0,    anger:0,    brow:0.12,  lids:0.18, glow:0.6,  jaw:0,    color:0xe04a5c, tilt:0 },
+  sad:       { smile:0,    sad:0.75, anger:0,    brow:-0.1,  lids:0.45, glow:0.3,  jaw:0,    color:0xa82b3a, tilt:0 },
+  hungry:    { smile:0.05, sad:0,    anger:0.7,  brow:-0.25, lids:0.1,  glow:0.95, jaw:0.1,  color:0xe01818, tilt:0.12 },
+  glitch:    { smile:0,    sad:0.2,  anger:0.3,  brow:0,     lids:0,    glow:1.1,  jaw:0.05, color:0x4fd9ad, tilt:0 },
+  happy:     { smile:0.8,  sad:0,    anger:0,    brow:0.2,   lids:0.12, glow:0.72, jaw:0,    color:0xff5a78, tilt:0 },
+  laugh:     { smile:1.0,  sad:0,    anger:0,    brow:0.22,  lids:0.3,  glow:0.85, jaw:0,    color:0xff6a82, tilt:0.04 },
+  surprised: { smile:0,    sad:0,    anger:0,    brow:0.4,   lids:-0.4, glow:0.7,  jaw:0.5, color:0xff3b3b, tilt:0 },
+  curious:   { smile:0.14, sad:0,    anger:0,    brow:0.3,   lids:0,    glow:0.5,  jaw:0,    color:0xe84050, tilt:-0.14 },
+  sleepy:    { smile:0,    sad:0.25, anger:0,    brow:-0.05, lids:0.85, glow:0.24, jaw:0,    color:0x993040, tilt:0.05 },
+  sly:       { smile:0.34, sad:0,    anger:0,    brow:0.12,  lids:0.42, glow:0.55, jaw:0,    color:0xd83a52, tilt:0.12 },
+  fear:      { smile:0,    sad:0.5,  anger:0.15, brow:-0.32, lids:-0.2, glow:0.4,  jaw:0.14, color:0xcc4455, tilt:0 }
 };
 
 // 探测 WebGL2（three r169 仅支持 WebGL2；不支持时直接抛错，交给游戏内 2D 兜底头像）
@@ -215,10 +222,10 @@ function EchoHead(canvas, M){
   scene.remove(head); pivot.add(head);
 
   // state
-  const st = { mood:'neutral', talk:0, talkPhase:0, blink:0, blinkTimer:1.5+Math.random()*3,
+  const st = { mood:'neutral', moodT:0, talk:0, talkPhase:0, blink:0, blinkTimer:1.5+Math.random()*3,
     lookX:0, lookY:0, glitch:0, jawOverride:null, cur:Object.assign({},MOODS.neutral) };
 
-  function setMood(m){ if(MOODS[m]) st.mood=m; }
+  function setMood(m){ if(MOODS[m]){ st.mood=m; st.moodT=performance.now()/1000; } }
   function setTalk(v){ st.talk = Math.max(0, Math.min(1, v)); }
   function setJaw(v){ st.jawOverride = v; }
   function setLook(x,y){ st.lookX=x; st.lookY=y; }
@@ -292,18 +299,25 @@ function EchoHead(canvas, M){
     if(lungeV>0.02) st.glitch=Math.max(st.glitch, lungeV*1.1);
     st.blinkTimer -= dt;
     let blinkTarget = st.cur.lids;
-    if(st.blinkTimer<0){ blinkTarget=1; if(st.blinkTimer<-0.18) st.blinkTimer=2+Math.random()*4; }
+    const blinkHold = st.mood==='sleepy' ? 0.6 : 0.18;
+    if(st.blinkTimer<0){ blinkTarget=1; if(st.blinkTimer<-blinkHold) st.blinkTimer=(st.mood==='sleepy'?2.5:2)+Math.random()*4; }
     st.blink += (blinkTarget-st.blink)*(1-Math.pow(0.0001,dt));
     st.talkPhase += dt*(6+st.talk*8);
     const syll = st.talk>0.02 ? (0.5+0.5*Math.sin(st.talkPhase))*(0.6+0.4*Math.sin(st.talkPhase*2.7)) : 0;
-    const jaw = st.jawOverride!==null ? st.jawOverride : Math.max(st.cur.jaw, syll*0.85*st.talk);
-    const eyeOpen = (1-st.blink)*(1-0.65*st.cur.lids);
+    // 表情动态：大笑时下巴随笑声起伏；惊讶在切换后 1.8 秒内张嘴，随后慢慢合上
+    let moodJaw = st.cur.jaw;
+    if(st.mood==='laugh') moodJaw = Math.max(moodJaw, 0.42*Math.abs(Math.sin(t*7.2))*(0.72+0.28*Math.sin(t*3.1)));
+    if(st.mood==='surprised'){ const el=t-st.moodT; moodJaw = Math.max(moodJaw, 0.5*Math.max(0,1-el/1.8)); }
+    const jaw = st.jawOverride!==null ? st.jawOverride : Math.max(moodJaw, syll*0.85*st.talk);
+    const eyeOpen = Math.max(0.05, Math.min(1.25, (1-st.blink)*(1-0.9*st.cur.lids)));
     const w = {jaw, smile:st.cur.smile, sad:st.cur.sad, anger:st.cur.anger, eyeOpen};
+    const AMP = {jaw:1.35, smile:1.2, sad:1.25, anger:1.1, eyeOpen:1};
     const pa = faceMesh.geometry.attributes.position.array;
     pa.set(faceBase);
     for(const name of ['jaw','smile','sad','anger','eyeOpen']){
       const d=morphByName[name], wt=w[name]; if(!wt) continue;
-      for(let i=0;i<pa.length;i++) pa[i]+=d[i]*wt;
+      const f=Math.min(1.5,wt)*AMP[name];
+      for(let i=0;i<pa.length;i++) pa[i]+=d[i]*f;
     }
     faceMesh.geometry.attributes.position.needsUpdate=true;
     faceMesh.geometry.computeVertexNormals();
@@ -311,24 +325,27 @@ function EchoHead(canvas, M){
     const lookX=eyeTx*0.024, lookY=eyeTy*0.018;
     for(const e of eyes){
       e.iris.position.x=e.x+lookX; e.iris.position.y=e.y+lookY;
+      // 上眼皮随 lids 下垂盖住眼睛（犯困/半眯/难过）；负值时微微抬起（惊讶睁大）
+      e.upLid.position.y=e.y+0.052-st.cur.lids*0.085;
+      e.upLid.scale.set(1.08, 0.5*(1+Math.max(0,st.cur.lids)*0.95), 0.55);
     }
     // brows: sad inner up, anger inner down, tender raise
-    const browInner = st.cur.sad*0.2 - st.cur.anger*0.26 + st.cur.brow*0.1;
+    const browInner = st.cur.sad*0.28 - st.cur.anger*0.26 + st.cur.brow*0.1;
     for(const b of brows){
       b.g.rotation.z = -b.sgn*0.08 + b.sgn*browInner;
-      b.g.position.y = 0.215 + st.cur.brow*0.02 - st.cur.anger*0.01;
+      b.g.position.y = 0.215 + st.cur.brow*0.05 - st.cur.anger*0.01;
     }
     irisMat.emissive.setHex(st.cur.color|0);
     irisMat.emissiveIntensity=st.cur.glow*(0.6+0.18*Math.sin(t*5))+st.glitch*1.2;
     eyeLight.color.setHex(st.cur.color|0);
     eyeLight.intensity=st.cur.glow*0.5+st.glitch*0.7;
     mouth.visible=jaw>0.04;
-    mouth.scale.set(1.15, Math.max(0.001,jaw*0.3), 0.6);
+    mouth.scale.set(1.15, Math.max(0.001,jaw*0.42), 0.6);
     mouth.position.y=mouthY-0.02-jaw*0.06;
-    teeth.visible=jaw>0.18;
+    teeth.visible=jaw>0.14;
     teeth.position.y=mouthY+0.005-jaw*0.02;
-    const tilt=st.mood==='hungry'?0.12:0;
-    // yaw/pitch 在 head，roll（环顾倾斜+倒立）在外层 pivot，保证倒立绕屏幕轴
+    const tilt=st.cur.tilt||0;
+    // yaw/pitch 在 head，roll（表情歪头+环顾倾斜+倒立）在外层 pivot，保证倒立绕屏幕轴
     head.rotation.y=Math.PI+0.12*Math.sin(t*0.35)+beh.yaw+st.glitch*(Math.random()-0.5)*0.08;
     head.rotation.x=tilt*0.6+0.03*Math.sin(t*0.8)+beh.pitch;
     head.rotation.z=0.02*Math.sin(t*0.6);
